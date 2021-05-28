@@ -17,7 +17,6 @@ public class SecurityUser implements UserDetails {
     private boolean isActive = true;
 
     public static UserDetails loadSecurity(User user) {
-
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),

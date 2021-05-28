@@ -1,7 +1,7 @@
 package com.service;
 
 import com.api.response.AuthResponse;
-import com.api.response.RestoreResponse;
+import com.api.response.DefaultResponse;
 import com.dto.UserDTO;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.User;
@@ -74,8 +74,8 @@ public class AuthService {
         return mail;
     }
 
-    public RestoreResponse sendRestoreCode(String email) {
-        RestoreResponse response = new RestoreResponse();
+    public DefaultResponse sendRestoreCode(String email) {
+        DefaultResponse response = new DefaultResponse();
         Optional<User> optional = userRepository.findByEmail(email);
         if (optional.isPresent()) {
             response.setResult(true);

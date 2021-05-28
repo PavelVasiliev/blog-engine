@@ -2,11 +2,9 @@ package com.controller.api;
 
 import com.api.request.PostRequest;
 import com.api.request.VoteRequest;
+import com.api.response.DefaultResponse;
 import com.api.response.PostResponse;
-import com.api.response.PostingResponse;
-import com.api.response.VoteResponse;
 import com.dto.PostDTO;
-import com.model.Image;
 import com.model.blog_enum.BlogError;
 import com.service.AuthService;
 import com.service.PostService;
@@ -14,7 +12,6 @@ import com.service.UserService;
 import com.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -116,8 +112,8 @@ public class ApiPostController {
     @PostMapping("")
     @ResponseBody
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<PostingResponse> post(@RequestBody PostRequest request) {
-        PostingResponse response = new PostingResponse();
+    public ResponseEntity<DefaultResponse> post(@RequestBody PostRequest request) {
+        DefaultResponse response = new DefaultResponse();
         Map<String, String> errors = checkData(request);
         if (!errors.isEmpty()) {
             response.setErrors(errors);
@@ -130,24 +126,24 @@ public class ApiPostController {
 
     @PostMapping("/like")
     @PreAuthorize("hasAuthority('user:write')")
-    public VoteResponse like(@RequestBody VoteRequest request) {
-        VoteResponse response = new VoteResponse();
+    public DefaultResponse like(@RequestBody VoteRequest request) {
+        DefaultResponse response = new DefaultResponse();
         response.setResult(voteService.vote((byte) 1, request));
         return response;
     }
 
     @PostMapping("/dislike")
     @PreAuthorize("hasAuthority('user:write')")
-    public VoteResponse dislike(@RequestBody VoteRequest request) {
-        VoteResponse response = new VoteResponse();
+    public DefaultResponse dislike(@RequestBody VoteRequest request) {
+        DefaultResponse response = new DefaultResponse();
         response.setResult(voteService.vote((byte) -1, request));
         return response;
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostingResponse> editPost(@PathVariable int id,
+    public ResponseEntity<DefaultResponse> editPost(@PathVariable int id,
                                                     @RequestBody PostRequest request) {
-        PostingResponse response = new PostingResponse();
+        DefaultResponse response = new DefaultResponse();
         Map<String, String> errors = checkData(request);
 
         if (!errors.isEmpty()) {

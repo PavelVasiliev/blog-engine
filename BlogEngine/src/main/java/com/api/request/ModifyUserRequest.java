@@ -2,6 +2,7 @@ package com.api.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.model.MultipartFileImpl;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -15,17 +16,7 @@ public class ModifyUserRequest {
     private String name;
     private String email;
     private String password;
-    private String photo;
+    private MultipartFileImpl photo;
     private byte removePhoto;
 
-    @Override
-    public String toString() {
-        return "ModifyUserRequest{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", photo=" + photo +
-                ", removePhoto=" + removePhoto +
-                '}';
-    }
 }

@@ -53,7 +53,6 @@ public class Image {
             }
             sb.append(fileSeparator);
         }
-        System.out.println(sb);
         return root + sb;
     }
 }

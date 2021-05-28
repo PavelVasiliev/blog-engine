@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-//ToDo make queries
 public interface TagRepository extends JpaRepository<Tag, Integer> {
 
     @Query(value = "SELECT count(*) FROM tag2post t2p " +

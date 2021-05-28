@@ -1,10 +1,9 @@
 package com.service;
 
 import com.api.request.ModifyUserRequest;
-import com.api.response.ModeratePostResponse;
+import com.api.response.DefaultResponse;
 import com.dto.UserDTO;
 import com.model.Image;
-import com.model.MultipartFileImpl;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.Post;
 import com.model.entity.User;
@@ -78,7 +77,7 @@ public class UserService {
         return userRepository.findByEmail(mail).isPresent() ? userRepository.findByEmail(mail).get() : new User();
     }
 
-    public void editUserProfile(ModifyUserRequest request, User user, MultipartFileImpl photo) {
+    public void editUserProfile(ModifyUserRequest request, User user) {
         if (request.getName() != null) {
             user.setName(request.getName());
         }
@@ -91,11 +90,11 @@ public class UserService {
         }
         if (request.getPhoto() != null) {
             String path = Image.makePath("/avatars/");
-            String name = photo.getOriginalFilename();
+            String name = request.getPhoto().getOriginalFilename();
             user.setPhoto(path + name);
 
             Image avatar = new Image(name);
-            avatar.save(photo, path);
+            avatar.save(request.getPhoto(), path);
         }
         if (request.getRemovePhoto() == (byte) 1) {
             user.setPhoto("");
@@ -103,8 +102,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public ModeratePostResponse moderate(int postId, String decision) {
-        ModeratePostResponse response = new ModeratePostResponse();
+    public DefaultResponse moderate(int postId, String decision) {
+        DefaultResponse response = new DefaultResponse();
         Optional<User> optional = userRepository.findByEmail(AuthService.getCurrentEmail());
         if (optional.isPresent()) {
             Post post = postRepository.getOne(postId);

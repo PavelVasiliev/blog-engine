@@ -1,9 +1,7 @@
 package com.model.blog_enum;
 
-
 import lombok.Getter;
 
-//ToDo delete
 @Getter
 public enum BlogGlobalSettings {
     MULTIUSER_MODE("Многопользовательский режим"),
@@ -11,7 +9,6 @@ public enum BlogGlobalSettings {
     STATISTICS_IS_PUBLIC("Показывать всем статистику блога");
 
     String name;
-    boolean value;
 
     BlogGlobalSettings(String name) {
         this.name = name;

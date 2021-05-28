@@ -10,7 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PostVotesRepository extends JpaRepository<PostVotes, Integer> {
     List<PostVotes> findAllByPostId(int postId);
-    List<PostVotes> findAllByUserId(int userId);
 
     Optional<PostVotes> findByPostIdAndUserId(int postId, int userId);
 }

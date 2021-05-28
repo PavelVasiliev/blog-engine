@@ -5,9 +5,7 @@ import com.api.request.RegistrationRequest;
 import com.api.request.RestorePassRequest;
 import com.api.response.AuthResponse;
 import com.api.response.CaptchaResponse;
-import com.api.response.LogoutResponse;
-import com.api.response.RegistrationResponse;
-import com.api.response.RestoreResponse;
+import com.api.response.DefaultResponse;
 import com.dto.UserDTO;
 import com.model.blog_enum.BlogError;
 import com.model.entity.User;
@@ -76,18 +74,19 @@ public class ApiAuthController {
 
     @GetMapping("/logout")
     @PreAuthorize("hasAuthority('user:write')")
-    public LogoutResponse logout(HttpServletRequest request) {
+    public DefaultResponse logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-
+        DefaultResponse response = new DefaultResponse();
         if (session != null) {
             session.invalidate();
+            response.setResult(true);
         }
-        return new LogoutResponse();
+        return response;
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RegistrationResponse register(@RequestBody RegistrationRequest request) {
-        RegistrationResponse response = new RegistrationResponse();
+    public DefaultResponse register(@RequestBody RegistrationRequest request) {
+        DefaultResponse response = new DefaultResponse();
 
         Map<String, String> errors = checkData(request);
         if (errors.isEmpty()) {
@@ -103,13 +102,13 @@ public class ApiAuthController {
         return response;
     }
     @PostMapping("/restore")
-    public RestoreResponse sendRestoreCode(@RequestBody RestorePassRequest request){
+    public DefaultResponse sendRestoreCode(@RequestBody RestorePassRequest request){
         return authService.sendRestoreCode(request.getEmail());
     }
 
     @PostMapping("/password")
-    public RestoreResponse restore(@RequestBody RestorePassRequest request){
-        RestoreResponse response = new RestoreResponse();
+    public DefaultResponse restore(@RequestBody RestorePassRequest request){
+        DefaultResponse response = new DefaultResponse();
         Map<String,String> errors = checkData(request);
         if(errors.isEmpty()){
             response.setResult(true);
@@ -124,7 +123,7 @@ public class ApiAuthController {
         if (!captchaService.findCodeBySecret(request.getCaptchaSecret()).equals(request.getCaptcha())) {
             result.put(BlogError.CAPTCHA.name().toLowerCase(), BlogError.CAPTCHA.getValue());
         }
-        if (userService.isUserExist(request.getEmail())) {
+        if (userService.isUserExist(request.getEmail()) || !UserService.validateMail(request.getEmail())) {
             result.put(BlogError.EMAIL.name().toLowerCase(), BlogError.EMAIL.getValue());
         }
         if (!UserService.validateName(request.getName())) {
