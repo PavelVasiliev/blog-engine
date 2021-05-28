@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - logicalFilePath: /db/changelog/dbchangelog-master.xml
+  - changeSet:
+      id: 5
+      author: paul
+      changes:
+        - createTable:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: post_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: int
+                  constraints:
+                    nullable: false

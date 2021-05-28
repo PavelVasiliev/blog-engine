@@ -1,0 +1,26 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet id="3" author="paul">
+        <comment>Adding Posts</comment>
+        <insert tableName="post_votes">
+            <column name="user_id" value="2"/>
+            <column name="post_id" value="1"/>
+            <column name="time" value="11111111112"/>
+            <column name="value" value="1"/>
+        </insert>
+        <insert tableName="post_votes">
+            <column name="user_id" value="2"/>
+            <column name="post_id" value="2"/>
+            <column name="time" value="11111111112"/>
+            <column name="value" value="1"/>
+        </insert>
+        <insert tableName="post_votes">
+            <column name="user_id" value="3"/>
+            <column name="post_id" value="1"/>
+            <column name="time" value="11111111112"/>
+            <column name="value" value="-1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

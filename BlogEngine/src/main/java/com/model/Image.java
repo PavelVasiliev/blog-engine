@@ -1,6 +1,12 @@
 package com.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -10,9 +16,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-@Data
+@Setter
+@Getter
+@Component
+@ConfigurationProperties(prefix = "image")
+@NoArgsConstructor
 public class Image {
-    public final static int MAX_SIZE = 5242880;
+    @JsonProperty("max_size")
+    private static String maxSize;
     private final static String PATH = "";
     private String name;
     private String path;
@@ -43,6 +54,9 @@ public class Image {
         return this.path;
     }
 
+    public static int getMaxSize() {
+        return Integer.parseInt(maxSize);
+    }
     public static String makePath(String root) {
         Random r = new Random();
         StringBuilder sb = new StringBuilder();

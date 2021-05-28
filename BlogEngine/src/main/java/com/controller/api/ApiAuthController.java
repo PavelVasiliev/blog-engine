@@ -118,6 +118,7 @@ public class ApiAuthController {
         }
         return response;
     }
+
     private Map<String, String> checkData(RegistrationRequest request) {
         Map<String, String> result = new HashMap<>();
         if (!captchaService.findCodeBySecret(request.getCaptchaSecret()).equals(request.getCaptcha())) {

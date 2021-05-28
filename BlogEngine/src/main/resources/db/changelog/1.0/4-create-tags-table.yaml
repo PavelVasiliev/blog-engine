@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - logicalFilePath: /db/changelog/dbchangelog-master.xml
+  - changeSet:
+      id: 4
+      author: paul
+      changes:
+        - createTable:
+            tableName: tags
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

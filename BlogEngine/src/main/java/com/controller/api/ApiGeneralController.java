@@ -14,7 +14,6 @@ import com.model.blog_enum.BlogError;
 import com.service.CalendarService;
 import com.service.CommentService;
 import com.service.SettingsService;
-import com.service.StatisticsService;
 import com.service.TagService;
 import com.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,14 +77,6 @@ public class ApiGeneralController {
         return calendarService.getCalendarResponse(year);
     }
 
-    private Map<String, String> checkData(CommentRequest request) {
-        Map<String, String> result = new HashMap<>();
-        if (request.getText().length() < 3) {
-            result.put(BlogError.Text.name().toLowerCase(), BlogError.Text.getValue());
-        }
-        return result;
-    }
-
     @PutMapping("/settings")
     @PreAuthorize("hasAuthority('moderator:moderate')")
     public void changeBlogSettings(@RequestBody SettingsRequest request) {
@@ -113,10 +104,27 @@ public class ApiGeneralController {
 
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('user:write')")
-    public String addImage(@RequestParam("image") MultipartFile mf) {
-        String name = mf.getOriginalFilename();
-        String path = Image.makePath("/upload/");
-        Image image = new Image(name);
-        return image.save(mf, path);
+    public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile mf) {
+        if (Image.getMaxSize() > mf.getSize()) {
+            String name = mf.getOriginalFilename();
+            String path = Image.makePath("/upload/");
+            Image image = new Image(name);
+            return ResponseEntity.ok(image.save(mf, path));
+        } else {
+            DefaultResponse response = new DefaultResponse();
+            Map<String, String> errors = new HashMap<>();
+            errors.put(BlogError.IMAGE.name(), BlogError.IMAGE.getValue());
+
+            response.setErrors(errors);
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    private Map<String, String> checkData(CommentRequest request) {
+        Map<String, String> result = new HashMap<>();
+        if (request.getText().length() < 3) {
+            result.put(BlogError.Text.name().toLowerCase(), BlogError.Text.getValue());
+        }
+        return result;
     }
 }

@@ -1,0 +1,26 @@
+spring.datasource.url: jdbc:mysql://localhost:3306/blog?useUnicode=true&serverTimezone=Europe/Moscow&useSSL=true&verifyServerCertificate=false
+spring.datasource.username: root
+spring.datasource.password: root
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/dbchangelog-master.xml
+  servlet:
+    multipart:
+      max-file-size: 5MB
+spring.jpa.hibernate.ddl-auto: validate
+
+blog.title: DevPub
+blog.subtitle: Дипломная работа
+blog.phone: +7 903 666-44-55
+blog.email: pwasilevroot@gmail.com
+blog.copyright: Павел Васильев
+blog.copyright_from: 2021
+
+captcha.width: 100
+captcha.height: 35
+captcha.live_time: 3600000
+captcha.url: data:image/png;base64,
+captcha.format: jpg
+
+image.max_size: 5242880
