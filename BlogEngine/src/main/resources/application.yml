@@ -12,7 +12,7 @@ spring.jpa.hibernate.ddl-auto: validate
 
 blog.title: DevPub
 blog.subtitle: Дипломная работа
-blog.phone: +7 903 666-44-55
+blog.phone: +7 953 340-24-95
 blog.email: pwasilevroot@gmail.com
 blog.copyright: Павел Васильев
 blog.copyright_from: 2021

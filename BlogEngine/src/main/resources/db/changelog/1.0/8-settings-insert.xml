@@ -5,19 +5,19 @@
     <changeSet id="8" author="paul">
         <comment>Adding Settings</comment>
         <insert tableName="global_settings">
-            <column name="code" value="1111"/>
-            <column name="name" value="First setting"/>
-            <column name="value" value="1"/>
+            <column name="code" value="MULTIUSER_MODE"/>
+            <column name="name" value="Многопользовательский режим"/>
+            <column name="value" value="YES"/>
         </insert>
         <insert tableName="global_settings">
-            <column name="code" value="2222"/>
-            <column name="name" value="Second setting"/>
-            <column name="value" value="1"/>
+            <column name="code" value="POST_PREMODERATION"/>
+            <column name="name" value="Премодерация постов"/>
+            <column name="value" value="YES"/>
         </insert>
         <insert tableName="global_settings">
-            <column name="code" value="333"/>
-            <column name="name" value="Third setting"/>
-            <column name="value" value="1"/>
+            <column name="code" value="STATISTICS_IS_PUBLIC"/>
+            <column name="name" value="Показывать всем статистику блога"/>
+            <column name="value" value="YES"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

@@ -28,13 +28,11 @@ public class GlobalSettings {
     @Column(nullable = false)
     private String value;
 
-    @Override
-    public String toString() {
-        return "GlobalSettings{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+    public void changeValue(boolean requestValue) {
+        value = requestValue ? "YES" : "NO";
+    }
+
+    public boolean getBooleanValue() {
+        return value.equals("YES");
     }
 }

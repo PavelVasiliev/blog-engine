@@ -3,12 +3,12 @@ package com.service;
 import com.api.request.SettingsRequest;
 import com.api.response.SettingsResponse;
 import com.model.blog_enum.BlogGlobalSettings;
-import com.model.entity.GlobalSetting;
+import com.model.entity.GlobalSettings;
 import com.repo.SettingsRepository;
-import org.apache.tomcat.jni.Global;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 
 @Service
 public class SettingsService {
@@ -20,7 +20,7 @@ public class SettingsService {
 
     public SettingsResponse getBlogSettings() {
         SettingsResponse response = new SettingsResponse();
-        GlobalSetting setting = getSetting(BlogGlobalSettings.MULTIUSER_MODE);
+        GlobalSettings setting = getSetting(BlogGlobalSettings.MULTIUSER_MODE);
         response.setMultiuserMode(setting.getBooleanValue());
         setting = getSetting(BlogGlobalSettings.POST_PREMODERATION);
         response.setPostPremoderation(setting.getBooleanValue());
@@ -29,19 +29,19 @@ public class SettingsService {
         return response;
     }
 
-    public GlobalSetting getSetting(BlogGlobalSettings setting){
+    public GlobalSettings getSetting(BlogGlobalSettings setting){
         return settingsRepository.findByCode(BlogGlobalSettings.valueOf(setting.name()).name());
     }
 
     public void save(SettingsRequest request) {
-        List<GlobalSetting> savedSettings = settingsRepository.findAll();
+        List<GlobalSettings> savedSettings = settingsRepository.findAll();
         boolean[] requestValues = request.getData();
 
         if(savedSettings.size() != requestValues.length){
             System.out.println("check settings enum and request data"); //ToDo logger
         }
         for(int i = 0; i < BlogGlobalSettings.values().length; i++){
-            GlobalSetting s = savedSettings.get(i);
+            GlobalSettings s = savedSettings.get(i);
             s.changeValue(requestValues[i]);
             settingsRepository.save(s);
         }

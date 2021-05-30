@@ -15,12 +15,16 @@ import com.repo.PostRepository;
 import com.repo.PostVotesRepository;
 import com.repo.TagRepository;
 import com.repo.UserRepository;
+import org.jinq.jpa.JinqJPAStreamProvider;
+import org.jinq.orm.stream.JinqStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,17 +44,21 @@ public class PostService {
     private final Tag2PostService tag2PostService;
     private final TagRepository tagRepository;
 
+    @PersistenceContext
+    private final EntityManager entityManager;
+
     @Autowired
     public PostService(PostRepository postRepository, UserRepository userRepository,
                        PostVotesRepository postVotesRepository,
                        CommentRepository commentRepository,
-                       Tag2PostService tag2PostService, TagRepository tagRepository) {
+                       Tag2PostService tag2PostService, TagRepository tagRepository, EntityManager entityManager) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.postVotesRepository = postVotesRepository;
         this.commentRepository = commentRepository;
         this.tag2PostService = tag2PostService;
         this.tagRepository = tagRepository;
+        this.entityManager = entityManager;
     }
 
     public List<Post> getPostsByUserId(int id) {
@@ -298,6 +306,26 @@ public class PostService {
     }
 
     public ResponseEntity<PostDTO> getPostDTO(int id) {
+
+        //FIXME its fg working
+
+        /*
+   stream()
+  .skip(10)
+  .limit(20)
+  .toList()
+And the generated SQL is:
+select c.* from car c limit ? offset ?
+*/
+        JinqJPAStreamProvider streams =
+                new JinqJPAStreamProvider(entityManager.getMetamodel());
+        JinqStream<Post> posts =
+                streams.streamAll(entityManager, Post.class);
+        for(Post p : posts.toList()){
+            System.out.println(p.toString());
+        }
+
+
         Post post = postRepository.getOne(id);
         PostDTO result;
         Optional<User> optional = userRepository.findByEmail(AuthService.getCurrentEmail());
