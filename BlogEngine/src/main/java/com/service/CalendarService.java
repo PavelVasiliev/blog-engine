@@ -5,7 +5,6 @@ import com.dto.PostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,9 +18,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
-    private final Format FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private final int BLOG_LAUNCH_YEAR = 2011;
-
     private final CalendarResponse calendarResponse;
     private final PostService postService;
 
@@ -65,7 +63,7 @@ public class CalendarService {
         Map<String, Integer> result = calendarResponse.getPosts();
         Map<String, Integer> temp = new HashMap<>(result);
         for (String key : result.keySet()) {
-            if (!key.substring(0, 4).equals(year)) {
+            if (!key.startsWith(year)) {
                 temp.remove(key);
             }
         }

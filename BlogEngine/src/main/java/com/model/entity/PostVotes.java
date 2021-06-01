@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Date;
@@ -22,10 +24,10 @@ public class PostVotes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
     @Column(nullable = false)
@@ -43,5 +45,16 @@ public class PostVotes {
     public void changeOpinion(byte value) {
         this.value = value;
         time = new Date();
+    }
+
+    @Override
+    public String toString() {
+        return "PostVotes{" +
+                "id=" + id +
+                ", user=" + user +
+                ", post=" + post +
+                ", time=" + time +
+                ", value=" + value +
+                '}';
     }
 }

@@ -21,14 +21,14 @@ import java.util.Optional;
 @Service
 public class AuthService {
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
+    private final PostService postService;
     @Getter
     private final String RESTORE_LINK = "/login/change-password/";
 
     @Autowired
-    public AuthService(UserRepository userRepository, PostRepository postRepository) {
+    public AuthService(UserRepository userRepository, PostService postService) {
         this.userRepository = userRepository;
-        this.postRepository = postRepository;
+        this.postService = postService;
     }
 
     //ToDo JWT?
@@ -37,7 +37,7 @@ public class AuthService {
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (user.isModerator()) {
-            int postsModerate = postRepository.findPostsByStatus(PostStatus.NEW).size();
+            int postsModerate = postService.countNewActiveCurrentPosts();
             authResponse.setUser(UserDTO.makeModeratorDTO(user, postsModerate));
         } else {
             authResponse.setUser(UserDTO.makeSimpleUserDTO(user));
@@ -55,7 +55,7 @@ public class AuthService {
                 authResponse.setUser(UserService.
                         getModeratorDTO(
                                 user,
-                                postRepository.findPostsByStatus(PostStatus.NEW).size()));
+                                postService.countNewActiveCurrentPosts()));
             } else {
                 authResponse.setUser(UserService.getUserDTO(user));
             }

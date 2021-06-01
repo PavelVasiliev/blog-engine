@@ -25,47 +25,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     List<Post> findPostsByModeratorIdAndStatus(int moderator, PostStatus status);
 
-    List<Post> findPostsByIsActiveEqualsAndPublicationDateLessThan(byte isActive, Date date);
-
-    Page<List<Post>> findPostsByIsActiveGreaterThanAndPublicationDateBefore(byte isActive, Date date, Pageable pageable);
-
-    @Query(value = "SELECT p.* FROM posts p " +
-            "WHERE moderation_status = ?1 AND p.time <= NOW() AND p.is_active = 1 " +
-            OFFSET_LIMIT,
-            nativeQuery = true)
-    List<Post> findByModerationStatus(int offset, int limit, PostStatus moderation_status); //new, accepted, declined
-
-    @Query(value = "SELECT p.* FROM posts p " +
-            "WHERE p.time <= NOW() AND p.is_active = 1 ORDER BY p.time DESC " +
-            OFFSET_LIMIT,
-            nativeQuery = true)
-    List<Post> findRecent(int offset, int limit);
-
-    @Query(value = "SELECT p.* FROM posts p " +
-            "WHERE p.time <= NOW() AND p.is_active = 1 ORDER BY p.time ASC " +
-            OFFSET_LIMIT,
-            nativeQuery = true)
-    List<Post> findOld(int offset, int limit);
-
-    @Query(value = "SELECT p.*, IFNULL(SUM(p_v.value), 0) AS 'likes_value' " +
-            "FROM posts p " +
-            "LEFT JOIN post_votes p_v ON p_v.post_id = p.id " +
-            "WHERE p.time <= NOW() AND p.is_active = 1 " +
-            "GROUP BY p.id " +
-            "ORDER BY likes_value DESC " +
-            OFFSET_LIMIT,
-            nativeQuery = true)
-    List<Post> findBest(int offset, int limit);
-
-    @Query(value = "SELECT p.*, IFNULL(COUNT(p_c.post_id),0) AS 'comments_amount' " +
-            "FROM posts p " +
-            "LEFT JOIN post_comments p_c ON p_c.post_id = p.id " +
-            "WHERE p.time <= NOW() AND p.is_active = 1 " +
-            "GROUP BY p.id ORDER BY comments_amount DESC " +
-            OFFSET_LIMIT,
-            nativeQuery = true)
-    List<Post> findPopular(int offset, int limit);
-
     @Query(value = "SELECT p.* FROM posts p " +
             "WHERE p.title LIKE %?1% OR p.text LIKE %?1% " +
             "AND p.time <= NOW() AND p.is_active = 1 " +

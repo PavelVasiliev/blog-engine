@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -59,18 +60,31 @@ public class User {
         return isModerator == 1 ? Role.MODERATOR : Role.USER;
     }
 
+    public void moderate(Post post, PostStatus status) {
+        if(this.isModerator()){
+            post.setModerator(this);
+            post.setStatus(status);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id && isModerator == user.isModerator;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, isModerator);
+    }
+
     private User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
         regTime = new Date();
         isModerator = 0;
-    }
-
-    public void moderate(Post post, PostStatus status) {
-        if(this.isModerator()){
-            post.setModerator(this);
-            post.setStatus(status);
-        }
     }
 }

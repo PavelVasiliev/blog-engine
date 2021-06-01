@@ -66,7 +66,7 @@ public class ApiAuthController {
         if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             authResponse.setResult(true);
             authResponse.setUser(user.isModerator() ?
-                    UserService.getModeratorDTO(user, postService.countNewPosts()): UserDTO.makeSimpleUserDTO(user));
+                    UserService.getModeratorDTO(user, postService.countNewActiveCurrentPosts()): UserDTO.makeSimpleUserDTO(user));
             authService.authorize(user);
         }
         return authResponse;
