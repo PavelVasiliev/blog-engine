@@ -18,7 +18,7 @@ public class UserDTO {
     private int moderationCount;
     private boolean settings = true;
 
-    public static UserDTO makeSimpleUserDTO(User user) {
+    public static UserDTO makeUserDTOWithPhoto(User user) {
         return new UserDTO(
                 user.getId(),
                 user.getName(),
@@ -38,7 +38,7 @@ public class UserDTO {
                 user.isModerator(), moderationCount);
     }
 
-    public static UserDTO makeUserDTOWithPhoto(User user) {
+    public static UserDTO makeSimpleUserDTO(User user) {
         return new UserDTO(
                 user.getId(),
                 user.getName(),

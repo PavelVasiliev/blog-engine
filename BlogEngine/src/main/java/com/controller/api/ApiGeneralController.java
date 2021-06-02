@@ -105,7 +105,7 @@ public class ApiGeneralController {
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile mf) {
-        if (Image.getMaxSize() > mf.getSize()) {
+        if (Image.MAX_SIZE > mf.getSize()) {
             String name = mf.getOriginalFilename();
             String path = Image.makePath("/upload/");
             Image image = new Image(name);

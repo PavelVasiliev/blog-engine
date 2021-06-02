@@ -3,6 +3,7 @@ package com.service;
 import com.api.request.CommentRequest;
 import com.api.response.CommentResponse;
 import com.dto.CommentDTO;
+import com.dto.UserDTO;
 import com.model.entity.Comment;
 import com.model.entity.Post;
 import com.model.entity.User;
@@ -40,12 +41,13 @@ public class CommentService {
         return result;
     }
 
-    public static CommentDTO makeDTO(Comment comment) {
+    private static CommentDTO makeDTO(Comment comment) {
+        UserDTO user = UserService.getUserDTOWithPhoto(comment.getUser());
         return new CommentDTO(
                 comment.getId(),
                 comment.getTime(),
                 comment.getText(),
-                UserService.getUserDTOWithPhoto(comment.getUser()));
+                user);
     }
 
     public ResponseEntity<CommentResponse> comment(CommentRequest request) {

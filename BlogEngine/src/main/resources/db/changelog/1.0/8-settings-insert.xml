@@ -12,7 +12,7 @@
         <insert tableName="global_settings">
             <column name="code" value="POST_PREMODERATION"/>
             <column name="name" value="Премодерация постов"/>
-            <column name="value" value="YES"/>
+            <column name="value" value="NO"/>
         </insert>
         <insert tableName="global_settings">
             <column name="code" value="STATISTICS_IS_PUBLIC"/>

@@ -78,7 +78,7 @@ public class ProfileController {
             }
         }
         if (request.getPhoto() != null) {
-            if (request.getPhoto().getSize() > Image.getMaxSize()) {
+            if (request.getPhoto().getSize() > Image.MAX_SIZE) {
                 result.put(BlogError.PHOTO.name().toLowerCase(), BlogError.PHOTO.getValue());
             }
         }

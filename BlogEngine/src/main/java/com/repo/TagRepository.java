@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Integer> {
 
+    //ToDo refactor
     @Query(value = "SELECT count(*) FROM tag2post t2p " +
             "INNER JOIN tags t ON t.id = t2p.tag_id " +
             "INNER JOIN posts p ON p.id = t2p.post_id " +

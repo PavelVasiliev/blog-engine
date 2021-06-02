@@ -22,5 +22,3 @@ captcha.height: 35
 captcha.live_time: 3600000
 captcha.url: data:image/png;base64,
 captcha.format: jpg
-
-image.max_size: 5242880

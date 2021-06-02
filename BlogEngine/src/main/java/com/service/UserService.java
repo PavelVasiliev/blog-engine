@@ -26,11 +26,13 @@ public class UserService {
     private static final byte MIN_PASSWORD_LENGTH = 6;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PostService postService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PostRepository postRepository) {
+    public UserService(UserRepository userRepository, PostRepository postRepository, PostService postService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.postService = postService;
     }
 
     public static boolean validateName(String name) {
