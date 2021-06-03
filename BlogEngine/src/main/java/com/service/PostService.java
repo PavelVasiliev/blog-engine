@@ -12,12 +12,10 @@ import com.model.entity.Tag;
 import com.model.entity.User;
 import com.repo.CommentRepository;
 import com.repo.PostRepository;
-import com.repo.PostVotesRepository;
 import com.repo.TagRepository;
 import com.repo.UserRepository;
-import org.jinq.jpa.JPAJinqStream;
-import org.jinq.jpa.JinqJPAStreamProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,64 +33,42 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.model.entity.Post.PostCommentsSort;
-
 @Service
 public class PostService {
     private final String OFFSET_DEFAULT = "0";
     private final String LIMIT_DEFAULT = "10";
 
-    private final PostVotesRepository postVotesRepository;
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final Tag2PostService tag2PostService;
     private final TagRepository tagRepository;
     private final JdbcTemplate jdbcTemplate;
-
-    @PersistenceContext
-    private final EntityManager entityManager;
-    private final JinqJPAStreamProvider streams;
+    @Qualifier("postRepositoryImpl")
+    private final PostRepository postRepository;
 
     @Autowired
     public PostService(PostRepository postRepository, UserRepository userRepository,
-                       PostVotesRepository postVotesRepository, CommentRepository commentRepository,
+                       CommentRepository commentRepository,
                        Tag2PostService tag2PostService, TagRepository tagRepository,
-                       EntityManager entityManager, JdbcTemplate jdbcTemplate) {
+                       JdbcTemplate jdbcTemplate) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.postVotesRepository = postVotesRepository;
         this.commentRepository = commentRepository;
         this.tag2PostService = tag2PostService;
         this.tagRepository = tagRepository;
-        this.entityManager = entityManager;
         this.jdbcTemplate = jdbcTemplate;
-        streams = new JinqJPAStreamProvider(this.entityManager.getMetamodel());
-    }
-
-    public JPAJinqStream<Post> getPostsStream(){
-        return streams.streamAll(entityManager, Post.class);
     }
 
     public List<Post> getPostsByUserId(int id) {
-        return getPostsStream()
-                .filter(p -> p.getUser().getId() == id)
-                .collect(Collectors.toList());
+        return postRepository.postsByUserId(id);
     }
 
     public int countNewActiveCurrentPosts() {
-        return (int) getPostsStream()
-                .filter(Post::isPostActive)
-                .filter(p -> p.getPublicationDate().before(new Date()))
-                .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                .count();
+        return (int) postRepository.countActiveCurrentPosts();
     }
 
     public List<Post> getActivePosts() {
-        return getPostsStream()
-                .filter(Post::isPostActive)
-                .filter(p -> p.getPublicationDate().before(new Date()))
-                .collect(Collectors.toList());
+        return postRepository.postsActiveCurrent();
     }
 
     public void post(PostRequest request, long timestamp) {
@@ -169,46 +143,29 @@ public class PostService {
         PostStatus moderationStatus = PostStatus.valueOf(postMode.toUpperCase());
         switch (moderationStatus) {
             case RECENT: {
-                postResponse.setPosts(givePostsDTOs(getPostsStream()
-                        .sortedDescendingBy(Post::getPublicationDate)
-                        .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                        .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                        .skip(offset)
-                        .limit(limit)
-                        .collect(Collectors.toList())));
+                postResponse.setPosts(
+                        givePostsDTOs(
+                                postRepository.postsByCurrent(offset, limit)));
                 return postResponse;
             }
             case EARLY: {
-                postResponse.setPosts(givePostsDTOs(getPostsStream()
-                        .sortedBy(Post::getPublicationDate)
-                        .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                        .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                        .skip(offset)
-                        .limit(limit)
-                        .collect(Collectors.toList())));
+                postResponse.setPosts(
+                        givePostsDTOs(
+                                postRepository.postsByOld(offset, limit)));
                 return postResponse;
             }
 
             //ToDo make it normal
             case BEST: {
-                postResponse.setPosts(givePostsDTOs(getPostsStream()
-                        .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                        .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                        .sorted()
-                        .skip(offset)
-                        .limit(limit)
-                        .collect(Collectors.toList())));
+                postResponse.setPosts(
+                        givePostsDTOs(
+                                postRepository.postsByScore(offset, limit)));
                 return postResponse;
             }
             case POPULAR: {
-                postResponse.setPosts(givePostsDTOs(getPostsStream()
-                        .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                        .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                        .sorted(PostCommentsSort)
-                        .skip(offset)
-                        .limit(limit)
-                        .collect(Collectors.toList())));
-
+                postResponse.setPosts(
+                        givePostsDTOs(
+                                postRepository.postsByPopularity(offset, limit)));
                 return postResponse;
             }
         }
@@ -220,22 +177,15 @@ public class PostService {
         int offset = Integer.parseInt(offsetString);
         int limit = Integer.parseInt(limitString) + offset;
 
-        int size = (int) getPostsStream()
-                .where(p -> p.getText().contains(query) || p.getTitle().contains(query))
-                .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                .filter(p -> p.getStatus().equals(PostStatus.NEW)).count();
+        int size = (int) postRepository.streamByQuery(query).count();
         postResponse.setCount(size);
 
-        List<PostDTO> posts = getPostsStream()
-                .where(p -> p.getText().contains(query) || p.getTitle().contains(query))
-                .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                .filter(p -> p.getStatus().equals(PostStatus.NEW))
+        List<PostDTO> posts = postRepository.streamByQuery(query)
                 .skip(offset)
                 .limit(limit)
                 .collect(Collectors.toList())
                 .stream().map(this::makeDTOWithAnnounceAndCommentCount)
                 .collect(Collectors.toList());
-
         postResponse.setPosts(posts);
         return ResponseEntity.status(HttpStatus.OK).body(postResponse);
     }
@@ -243,12 +193,8 @@ public class PostService {
     public List<PostDTO> getPostsByYear(int year) {
         Calendar after = new GregorianCalendar(year, Calendar.JANUARY, 1);
         Calendar before = new GregorianCalendar(year + 1, Calendar.JANUARY, 1);
-        return givePostsDTOs(getPostsStream()
-                .filter(Post::isPostActive)
-                .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                .filter(post -> post.getPublicationDate().after(after.getTime()))
-                .filter(post -> post.getPublicationDate().before(before.getTime()))
-                .collect(Collectors.toList()));
+        return givePostsDTOs(postRepository
+                .streamByDate(after.getTime(), before.getTime()).collect(Collectors.toList()));
     }
 
     public PostResponse getResponseByDate(String offsetString, String limitString, String date) {
@@ -260,17 +206,10 @@ public class PostService {
             long day = 86_400_000;
             Date before = new Date(after.getTime() + day);
 
-            postResponse.setCount((int) getPostsStream()
-                    .filter(Post::isPostActive)
-                    .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                    .filter(post -> post.getPublicationDate().after(after))
-                    .filter(post -> post.getPublicationDate().before(before))
+            postResponse.setCount((int) postRepository.streamByDate(after, before)
                     .count());
-            postResponse.setPosts(givePostsDTOs(getPostsStream()
-                    .filter(Post::isPostActive)
-                    .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                    .filter(post -> post.getPublicationDate().after(after))
-                    .filter(post -> post.getPublicationDate().before(before))
+            postResponse.setPosts(givePostsDTOs(postRepository
+                    .streamByDate(after, before)
                     .skip(offset)
                     .limit(limit)
                     .collect(Collectors.toList())));
@@ -284,26 +223,11 @@ public class PostService {
         PostResponse postResponse = new PostResponse();
         int offset = Integer.parseInt(offsetString);
         int limit = Integer.parseInt(limitString) + offset;
-        int size = (int) getPostsStream()
-                .filter(post -> new ArrayList<>(
-                        post.getTags()).stream()
-                        .map(Tag::getName)
-                        .anyMatch(t -> t.contains(tag)))
-                .count();
+        int size = (int) postRepository.streamByTag(tag).count();
         postResponse.setCount(size);
-
         postResponse.setPosts(
                 givePostsDTOs(
-                        getPostsStream()
-                                .filter(Post::isPostActive)
-                                .filter(p -> p.getStatus().equals(PostStatus.NEW))
-                                .filter(post -> new ArrayList<>(
-                                        post.getTags()).stream()
-                                        .map(Tag::getName)
-                                        .anyMatch(t -> t.contains(tag)))
-                                .skip(offset)
-                                .limit(limit)
-                                .collect(Collectors.toList())));
+                        postRepository.postsByTag(tag, offset, limit)));
         return postResponse;
     }
 
@@ -312,13 +236,8 @@ public class PostService {
         int offset = Integer.parseInt(offsetString);
         int limit = Integer.parseInt(limitString) + offset;
 
-        PostStatus status = PostStatus.NEW;
+        PostStatus status;
         switch (moderationStatus) {
-            case "new": {
-                status = PostStatus.NEW;
-                response.setPosts(givePostsToModerator(moderatorId, status, offset, limit));
-                break;
-            }
             case "accepted": {
                 status = PostStatus.ACCEPTED;
                 response.setPosts(givePostsToModerator(moderatorId, status, offset, limit));
@@ -329,43 +248,37 @@ public class PostService {
                 response.setPosts(givePostsToModerator(moderatorId, status, offset, limit));
                 break;
             }
+            default: {
+                status = PostStatus.NEW;
+                response.setPosts(givePostsToModerator(moderatorId, status, offset, limit));
+                break;
+            }
         }
         response.setCount(countPostsToModerator(moderatorId, status));
         return response;
     }
 
-    private int countPostsToModerator(int moderatorId, PostStatus status) {
-
+    public int countPostsToModerator(int moderatorId, PostStatus status) {
         int result;
         if (status.equals(PostStatus.NEW)) {
-            result = countNewActiveCurrentPosts();
+            result = (int) postRepository.countByStatusActiveCurrentPosts(status);
         } else {
-            result = (int) getPostsStream()
-                    .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                    .filter(p -> p.getModerator() != null && p.getModerator().getId() == moderatorId)
-                    .filter(p -> p.getStatus().equals(status))
-                    .count();
+            result = (int) postRepository.streamToModeratorByStatus(moderatorId, status).count();
         }
         return result;
     }
 
     private List<PostDTO> givePostsToModerator(int moderatorId, PostStatus status, int offset, int limit) {
         List<PostDTO> result = new ArrayList<>();
+
         if (status.equals(PostStatus.NEW)) {
-            result.addAll(getPostsStream()
-                    .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                    .filter(p -> p.getStatus().equals(status))
-                    .skip(offset)
-                    .limit(limit)
-                    .collect(Collectors.toList())
+            result.addAll(postRepository.postsByStatus(status, offset, limit)
                     .stream()
+                    .filter(Post::isPostActive)
                     .map(this::makeDTOWithAnnounceAndCommentCount)
                     .collect(Collectors.toList()));
         } else {
-            result.addAll(getPostsStream()
-                    .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                    .filter(p -> p.getModerator() != null && p.getModerator().getId() == moderatorId)
-                    .filter(p -> p.getStatus().equals(status))
+            result.addAll(postRepository.streamToModeratorByStatus(moderatorId, status)
                     .skip(offset)
                     .limit(limit)
                     .collect(Collectors.toList())
@@ -405,24 +318,15 @@ public class PostService {
 
     private List<PostDTO> giveMyPosts(int userId, PostStatus status) {
         List<PostDTO> result = new ArrayList<>();
-        if (status == null) {
-            getPostsStream()
-                    .filter(post -> post.getUser().getId() == userId & !post.isPostActive())
-                    .collect(Collectors.toList())
-                    .forEach(post -> result.add(makeDTOWithAnnounceAndCommentCount(post)));
-        } else {
-            getPostsStream()
-                    .filter(post -> post.getUser().getId() == userId & post.getStatus() == status)
-                    .collect(Collectors.toList())
-                    .forEach(post -> result.add(makeDTOWithAnnounceAndCommentCount(post)));
-        }
+        postRepository.postsByUserId(userId, status)
+                .forEach(post -> result.add(makeDTOWithAnnounceAndCommentCount(post)));
         return result;
     }
 
     public ResponseEntity<PostDTO> getPostDTO(int id) {
         PostDTO result;
 
-        Optional<Post> postOptional = getPostsStream().filter(p -> p.getId() == id).findFirst();
+        Optional<Post> postOptional = postRepository.optionalPostById(id);
         if (postOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new PostDTO());
         }

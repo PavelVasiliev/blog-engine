@@ -8,6 +8,7 @@ import com.api.response.CaptchaResponse;
 import com.api.response.DefaultResponse;
 import com.dto.UserDTO;
 import com.model.blog_enum.BlogError;
+import com.model.blog_enum.PostStatus;
 import com.model.entity.User;
 import com.service.AuthService;
 import com.service.CaptchaService;
@@ -66,7 +67,7 @@ public class ApiAuthController {
         if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             authResponse.setResult(true);
             authResponse.setUser(user.isModerator() ?
-                    UserService.getModeratorDTO(user, postService.countNewActiveCurrentPosts()): UserDTO.makeSimpleUserDTO(user));
+                    UserService.getModeratorDTO(user, postService.countPostsToModerator(user.getId(), PostStatus.NEW)): UserDTO.makeSimpleUserDTO(user));
             authService.authorize(user);
         }
         return authResponse;
