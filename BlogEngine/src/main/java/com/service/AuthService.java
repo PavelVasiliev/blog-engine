@@ -55,7 +55,7 @@ public class AuthService {
                 authResponse.setUser(UserService.
                         getModeratorDTO(
                                 user,
-                                postService.countNewActiveCurrentPosts()));
+                                postService.countPostsToModerator(user.getId(), PostStatus.NEW)));
             } else {
                 authResponse.setUser(UserService.getUserDTO(user));
             }
