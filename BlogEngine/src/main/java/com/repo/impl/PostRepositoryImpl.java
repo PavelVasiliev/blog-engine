@@ -120,21 +120,6 @@ public class PostRepositoryImpl implements PostRepository {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Post> postsByTagQuery(String query, int offset, int limit) {
-        PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-        return getPostsStream()
-                .filter(Post::isPostActive)
-                .filter(p -> p.getStatus().equals(status) || p.getStatus().equals(PostStatus.ACCEPTED))
-                .filter(post -> new ArrayList<>(
-                        post.getTags()).stream()
-                        .map(Tag::getName)
-                        .anyMatch(t -> t.contains(query)))
-                .skip(offset)
-                .limit(limit)
-                .collect(Collectors.toList());
-
-    }
 
     @Override
     public List<Post> postsByPopularity(int offset, int limit) {
@@ -185,7 +170,6 @@ public class PostRepositoryImpl implements PostRepository {
                         post.getTags()).stream()
                         .map(Tag::getName)
                         .anyMatch(t -> t.contains(tag)));
-
     }
 
     @Override

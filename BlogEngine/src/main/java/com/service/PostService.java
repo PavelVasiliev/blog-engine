@@ -232,7 +232,10 @@ public class PostService {
         postResponse.setCount(size);
         postResponse.setPosts(
                 givePostsDTOs(
-                        postRepository.postsByTagQuery(tag, offset, limit)));
+                        postRepository.streamByTag(tag)
+                                .skip(offset)
+                                .limit(limit)
+                                .collect(Collectors.toList())));
         return postResponse;
     }
 
@@ -333,13 +336,10 @@ public class PostService {
     }
 
     public ResponseEntity<PostDTO> getPostDTO(int id) {
-        System.out.println("we r here?");
         PostDTO result;
 
         Optional<Post> postOptional = postRepository.optionalPostById(id);
-        System.out.println(postOptional.isEmpty() + " post null?");
         if (postOptional.isEmpty()) {
-            System.out.println("optional post");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new PostDTO());
         }
 
@@ -351,12 +351,8 @@ public class PostService {
 
             User user = optional.get();
             if (user.isModerator()) {
-                System.out.println("moder");
-
                 userDTO = UserDTO.makeModeratorDTO(user, countActiveCurrentPosts());
             } else {
-                System.out.println("user");
-
                 userDTO = UserDTO.makeSimpleUserDTO(user);
                 if (user.getId() != post.getId()) {
                     incrementPostViews(post.getId()); //increment only for registered users

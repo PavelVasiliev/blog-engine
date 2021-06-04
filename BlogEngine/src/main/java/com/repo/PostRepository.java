@@ -30,8 +30,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     Stream<Post> streamByTag(String tag);
 
-    List<Post> postsByTagQuery(String tag, int offset, int limit);
-
     Stream<Post> streamByStatus(PostStatus status);
 
     Stream<Post> streamByModeratorIdAndStatus(int moderatorId, PostStatus status);
