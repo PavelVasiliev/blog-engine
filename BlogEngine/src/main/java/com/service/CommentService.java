@@ -66,13 +66,11 @@ public class CommentService {
             Optional<User> user = userRepository.findByEmail(AuthService.getCurrentEmail());
             if (user.isPresent()) {
                 Post post = postRepository.getOne(postId);
-                Comment comment =
-                        new Comment(
+                Comment comment = Comment.makeComment(
                                 user.get(),
                                 post,
                                 parent,
-                                request.getText(),
-                                commentRepository.findAll().size() + 1); //ToDo smthg with id Identity
+                                request.getText());
                 response.setId(comment.getId());
                 commentRepository.save(comment);
                 return ResponseEntity.ok(response);

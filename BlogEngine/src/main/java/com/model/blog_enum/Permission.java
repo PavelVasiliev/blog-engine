@@ -1,5 +1,8 @@
 package com.model.blog_enum;
 
+import lombok.Getter;
+
+@Getter
 public enum Permission {
     USER("user:write"),
     MODERATOR("moderator:moderate");
@@ -8,9 +11,5 @@ public enum Permission {
 
     Permission(String permission) {
         this.permission = permission;
-    }
-
-    public String getPermission() {
-        return permission;
     }
 }

@@ -42,16 +42,17 @@ public class Comment {
     @Column(nullable = false, columnDefinition = "text")
     private String text;
 
-    public Comment(User user, Post post, Comment parent, String text, int id) {
-        this.id = id;
-        this.user = user;
-        this.post = post;
-        this.parent = parent;
-        this.text = text;
-        time = new Date();
-    }
-
     public long getTime() {
         return time.getTime() / 1000;
+    }
+
+    public static Comment makeComment(User user, Post post, Comment parent, String text){
+        Comment comment = new Comment();
+        comment.user = user;
+        comment.post = post;
+        comment.parent = parent;
+        comment.text = text;
+        comment.time = new Date();
+        return comment;
     }
 }

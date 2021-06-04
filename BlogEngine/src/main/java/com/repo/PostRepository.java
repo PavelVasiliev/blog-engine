@@ -16,8 +16,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     long countActiveCurrentPosts();
 
-    long countByStatusActiveCurrentPosts(PostStatus status);
-
     List<Post> postsActiveCurrent();
 
     List<Post> postsByCurrent(int offset, int limit);
@@ -34,13 +32,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     Stream<Post> streamByTag(String tag);
 
-    List<Post> postsByTag(String tag, int offset, int limit);
+    List<Post> postsByTagQuery(String tag, int offset, int limit);
 
-    List<Post> postsByStatus(PostStatus status, int offset, int limit);
+    Stream<Post> streamByStatus(PostStatus status);
 
-    Stream<Post> streamToModeratorByStatus(int moderatorId, PostStatus status);
+    Stream<Post> streamByModeratorIdAndStatus(int moderatorId, PostStatus status);
 
-    List<Post> postsByUserId(int userId, PostStatus status);
+    List<Post> postsByUserId(int userId, PostStatus status, int offset, int limit);
 
     Optional<Post> optionalPostById(int id);
 }

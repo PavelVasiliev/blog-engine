@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+
+//ToDo method 36*36 avatar size
 @Setter
 @Getter
 @NoArgsConstructor

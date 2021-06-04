@@ -46,15 +46,4 @@ public class PostVotes {
         this.value = value;
         time = new Date();
     }
-
-    @Override
-    public String toString() {
-        return "PostVotes{" +
-                "id=" + id +
-                ", user=" + user +
-                ", post=" + post +
-                ", time=" + time +
-                ", value=" + value +
-                '}';
-    }
 }

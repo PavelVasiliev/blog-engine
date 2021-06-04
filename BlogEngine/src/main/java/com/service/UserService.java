@@ -26,13 +26,11 @@ public class UserService {
     private static final byte MIN_PASSWORD_LENGTH = 6;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final PostService postService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PostRepository postRepository, PostService postService) {
+    public UserService(UserRepository userRepository, PostRepository postRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
-        this.postService = postService;
     }
 
     public static boolean validateName(String name) {
@@ -62,7 +60,7 @@ public class UserService {
     }
 
     public boolean isUserExist(String email) {
-        return userRepository.findByEmail(email).isPresent();
+        return getUserByMail(email).isPresent();
     }
 
     public boolean isCodeRight(String code) {
@@ -75,8 +73,8 @@ public class UserService {
         }
     }
 
-    public User getUserByMail(String mail) {
-        return userRepository.findByEmail(mail).isPresent() ? userRepository.findByEmail(mail).get() : new User();
+    public Optional<User> getUserByMail(String mail) {
+        return userRepository.findByEmail(mail);
     }
 
     public void editUserProfile(ModifyUserRequest request, User user) {

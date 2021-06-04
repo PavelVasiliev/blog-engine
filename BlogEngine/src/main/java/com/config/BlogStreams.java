@@ -18,17 +18,14 @@ public class BlogStreams {
     public void setEntityManagerFactory(
             EntityManagerFactory emf) throws Exception {
         streams = new JinqJPAStreamProvider(emf);
-        // Do any additional Jinq initialization needed here.
     }
 
-    // Wrapper that passes through Jinq requests to Jinq
     public <U> JPAJinqStream<U> streamAll(
             EntityManager em, Class<U> entity) {
         return streams.streamAll(em, entity);
     }
 
-    // You can include helper methods here too
     public JPAJinqStream<Post> posts(EntityManager em) {
-        return streams.streamAll(em, Post.class);
+        return streamAll(em, Post.class);
     }
 }

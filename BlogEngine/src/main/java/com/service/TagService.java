@@ -4,6 +4,7 @@ import com.api.response.TagResponse;
 import com.dto.TagDTO;
 import com.model.entity.Tag;
 import com.repo.PostRepository;
+import com.repo.Tag2PostRepository;
 import com.repo.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,11 +24,14 @@ import java.util.stream.Collectors;
 public class TagService {
     private final TagRepository tagRepository;
     private final PostRepository postRepository;
+    private final Tag2PostRepository tag2PostRepository;
 
     @Autowired
-    public TagService(TagRepository tagRepository, PostRepository postRepository) {
+    public TagService(TagRepository tagRepository, PostRepository postRepository,
+                      Tag2PostRepository tag2PostRepository) {
         this.tagRepository = tagRepository;
         this.postRepository = postRepository;
+        this.tag2PostRepository = tag2PostRepository;
     }
 
     public TagResponse getTagWeight(String query) {
@@ -38,7 +43,9 @@ public class TagService {
         int mostPopularTagAmount = 0;
         List<String> tagNames = makeTagsList(query);
         for (String tagName : tagNames) {
-            int postsWithTag = tagRepository.countTagsByName(tagName);
+            int postsWithTag = tag2PostRepository
+                    .countAllByTagNameLikeAndPostIsActiveAndPostPublicationDateBefore
+                            ("%" + tagName, (byte) 1, new Date());
             if (postsWithTag > mostPopularTagAmount) {
                 mostPopularTagAmount = postsWithTag;
             }

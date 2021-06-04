@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostService {
+    public static final int MIN_TITLE = 3;
+    public static final int MIN_TEXT = 50;
     private final String OFFSET_DEFAULT = "0";
     private final String LIMIT_DEFAULT = "10";
 
@@ -227,7 +229,7 @@ public class PostService {
         postResponse.setCount(size);
         postResponse.setPosts(
                 givePostsDTOs(
-                        postRepository.postsByTag(tag, offset, limit)));
+                        postRepository.postsByTagQuery(tag, offset, limit)));
         return postResponse;
     }
 
@@ -261,9 +263,9 @@ public class PostService {
     public int countPostsToModerator(int moderatorId, PostStatus status) {
         int result;
         if (status.equals(PostStatus.NEW)) {
-            result = (int) postRepository.countByStatusActiveCurrentPosts(status);
+            result = (int) postRepository.streamByStatus(status).count();
         } else {
-            result = (int) postRepository.streamToModeratorByStatus(moderatorId, status).count();
+            result = (int) postRepository.streamByModeratorIdAndStatus(moderatorId, status).count();
         }
         return result;
     }
@@ -272,13 +274,15 @@ public class PostService {
         List<PostDTO> result = new ArrayList<>();
 
         if (status.equals(PostStatus.NEW)) {
-            result.addAll(postRepository.postsByStatus(status, offset, limit)
+            result.addAll(postRepository.streamByStatus(status)
+                    .skip(offset)
+                    .limit(limit)
+                    .collect(Collectors.toList())
                     .stream()
-                    .filter(Post::isPostActive)
                     .map(this::makeDTOWithAnnounceAndCommentCount)
                     .collect(Collectors.toList()));
         } else {
-            result.addAll(postRepository.streamToModeratorByStatus(moderatorId, status)
+            result.addAll(postRepository.streamByModeratorIdAndStatus(moderatorId, status)
                     .skip(offset)
                     .limit(limit)
                     .collect(Collectors.toList())
@@ -289,25 +293,27 @@ public class PostService {
         return result;
     }
 
-    public PostResponse getResponseMyPostsByMode(int userId, String mode) {
+    public PostResponse getResponseMyPostsByMode(int userId, String mode, String offsetString, String limitString) {
         PostResponse postResponse = new PostResponse();
         List<PostDTO> result = new ArrayList<>();
+        int offset = Integer.parseInt(offsetString);
+        int limit = Integer.parseInt(limitString) + offset;
 
         switch (mode) {
             case "inactive": {
-                result.addAll(giveMyPosts(userId, null));
+                result.addAll(giveMyPosts(userId, null, offset, limit));
                 break;
             }
             case "pending": {
-                result.addAll(giveMyPosts(userId, PostStatus.NEW));
+                result.addAll(giveMyPosts(userId, PostStatus.NEW, offset, limit));
                 break;
             }
             case "declined": {
-                result.addAll(giveMyPosts(userId, PostStatus.DECLINED));
+                result.addAll(giveMyPosts(userId, PostStatus.DECLINED, offset, limit));
                 break;
             }
             case "published": {
-                result.addAll(giveMyPosts(userId, PostStatus.ACCEPTED));
+                result.addAll(giveMyPosts(userId, PostStatus.ACCEPTED, offset, limit));
                 break;
             }
         }
@@ -316,9 +322,9 @@ public class PostService {
         return postResponse;
     }
 
-    private List<PostDTO> giveMyPosts(int userId, PostStatus status) {
+    private List<PostDTO> giveMyPosts(int userId, PostStatus status, int offset, int limit) {
         List<PostDTO> result = new ArrayList<>();
-        postRepository.postsByUserId(userId, status)
+        postRepository.postsByUserId(userId, status, offset, limit)
                 .forEach(post -> result.add(makeDTOWithAnnounceAndCommentCount(post)));
         return result;
     }

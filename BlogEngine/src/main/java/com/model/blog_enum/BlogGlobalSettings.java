@@ -8,7 +8,7 @@ public enum BlogGlobalSettings {
     POST_PREMODERATION("Премодерация постов"),
     STATISTICS_IS_PUBLIC("Показывать всем статистику блога");
 
-    String name;
+    private final String name;
 
     BlogGlobalSettings(String name) {
         this.name = name;

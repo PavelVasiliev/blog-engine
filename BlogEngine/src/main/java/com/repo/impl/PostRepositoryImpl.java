@@ -49,32 +49,42 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     private boolean getStatusPremoderation(){
-        GlobalSettings setting = settingsRepository.findByCode(BlogGlobalSettings.valueOf(BlogGlobalSettings.POST_PREMODERATION.name()).name());
+        GlobalSettings setting = settingsRepository
+                .findByCode(BlogGlobalSettings.valueOf(BlogGlobalSettings.POST_PREMODERATION.name()).name());
         return setting.getBooleanValue();
     }
+
+    @Override
     public List<Post> postsByUserId(int id) {
         return getPostsStream()
                 .filter(p -> p.getUser().getId() == id)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Post> postsByUserId(int userId, PostStatus status, int offset, int limit) {
+        if (status == null) {
+            return getPostsStream()
+                    .filter(post -> post.getUser().getId() == userId & !post.isPostActive())
+                    .skip(offset)
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
+        return getPostsStream().filter(post -> post.getUser().getId() == userId & post.getStatus() == status)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public long countActiveCurrentPosts() {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
         return getPostsStream()
                 .filter(Post::isPostActive)
                 .filter(p -> p.getPublicationDate().before(new Date()))
                 .filter(p -> p.getStatus().equals(status) ||  p.getStatus().equals(PostStatus.ACCEPTED))
                 .count();
     }
-    public long countByStatusActiveCurrentPosts(PostStatus status) {
-        return getPostsStream()
-                .filter(Post::isPostActive)
-                .filter(p -> p.getPublicationDate().before(new Date()))
-                .filter(p -> p.getStatus().equals(status))
-                .count();
-    }
 
+    @Override
     public List<Post> postsActiveCurrent() {
         return getPostsStream()
                 .filter(Post::isPostActive)
@@ -85,7 +95,6 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public List<Post> postsByCurrent(int offset, int limit) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
         return getPostsStream()
                 .sortedDescendingBy(Post::getPublicationDate)
                 .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
@@ -95,9 +104,9 @@ public class PostRepositoryImpl implements PostRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<Post> postsByOld(int offset, int limit) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
         return getPostsStream()
                 .sortedBy(Post::getPublicationDate)
                 .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
@@ -107,9 +116,9 @@ public class PostRepositoryImpl implements PostRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<Post> postsByScore(int offset, int limit) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
         return getPostsStream()
                 .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
                 .filter(p -> p.getStatus().equals(status) || p.getStatus().equals(PostStatus.ACCEPTED))
@@ -119,6 +128,23 @@ public class PostRepositoryImpl implements PostRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Post> postsByTagQuery(String query, int offset, int limit) {
+        PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
+        return getPostsStream()
+                .filter(Post::isPostActive)
+                .filter(p -> p.getStatus().equals(status) || p.getStatus().equals(PostStatus.ACCEPTED))
+                .filter(post -> new ArrayList<>(
+                        post.getTags()).stream()
+                        .map(Tag::getName)
+                        .anyMatch(t -> t.contains(query)))
+                .skip(offset)
+                .limit(limit)
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
     public List<Post> postsByPopularity(int offset, int limit) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
 
@@ -131,9 +157,16 @@ public class PostRepositoryImpl implements PostRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Stream<Post> streamByStatus(PostStatus status) {
+        return getPostsStream()
+                .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
+                .filter(p -> p.getStatus().equals(status));
+    }
+
+    @Override
     public Stream<Post> streamByDate(Date after, Date before) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
         return getPostsStream()
                 .filter(Post::isPostActive)
                 .filter(post -> post.getPublicationDate().after(after))
@@ -141,15 +174,16 @@ public class PostRepositoryImpl implements PostRepository {
                 .filter(p -> p.getStatus().equals(status) || p.getStatus().equals(PostStatus.ACCEPTED));
     }
 
+    @Override
     public Stream<Post> streamByQuery(String query) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
         return getPostsStream()
                 .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
                 .filter(p -> p.getStatus().equals(status) || p.getStatus().equals(PostStatus.ACCEPTED))
                 .filter(p -> p.getText().contains(query) || p.getTitle().contains(query));
     }
 
+    @Override
     public Stream<Post> streamByTag(String tag) {
         return getPostsStream()
                 .filter(post -> new ArrayList<>(
@@ -159,49 +193,15 @@ public class PostRepositoryImpl implements PostRepository {
 
     }
 
-    public List<Post> postsByTag(String tag, int offset, int limit) {
-        PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
-
-        return getPostsStream()
-                .filter(Post::isPostActive)
-                .filter(p -> p.getStatus().equals(status) || p.getStatus().equals(PostStatus.ACCEPTED))
-                .filter(post -> new ArrayList<>(
-                        post.getTags()).stream()
-                        .map(Tag::getName)
-                        .anyMatch(t -> t.contains(tag)))
-                .skip(offset)
-                .limit(limit)
-                .collect(Collectors.toList());
-
-    }
-
-
-    public List<Post> postsByStatus(PostStatus status, int offset, int limit) {
-        return getPostsStream()
-                .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
-                .filter(p -> p.getStatus().equals(status))
-                .skip(offset)
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
-
-    public Stream<Post> streamToModeratorByStatus(int moderatorId, PostStatus status) {
+    @Override
+    public Stream<Post> streamByModeratorIdAndStatus(int moderatorId, PostStatus status) {
         return getPostsStream()
                 .filter(p -> p.getPublicationDate().before(new Date()) && p.isPostActive())
                 .filter(p -> p.getModerator() != null && p.getModerator().getId() == moderatorId)
                 .filter(p -> p.getStatus().equals(status));
     }
 
-    public List<Post> postsByUserId(int userId, PostStatus status) {
-        if (status == null) {
-            return getPostsStream()
-                    .filter(post -> post.getUser().getId() == userId & !post.isPostActive())
-                    .collect(Collectors.toList());
-        }
-        return getPostsStream().filter(post -> post.getUser().getId() == userId & post.getStatus() == status)
-                .collect(Collectors.toList());
-    }
-
+    @Override
     public Optional<Post> optionalPostById(int id) {
         PostStatus status = getStatusPremoderation() ? PostStatus.ACCEPTED : PostStatus.NEW;
 
@@ -264,7 +264,6 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     //FixMe default methods if needed
-
     @Override
     public <S extends Post> Optional<S> findOne(Example<S> example) {
         return Optional.empty();

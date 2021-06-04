@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 
 @Repository
 public interface Tag2PostRepository extends JpaRepository<Tag2Post, Integer> {
@@ -13,4 +14,6 @@ public interface Tag2PostRepository extends JpaRepository<Tag2Post, Integer> {
     @Modifying
     @Transactional
     void deleteAllByPostId(int postId);
+
+    int countAllByTagNameLikeAndPostIsActiveAndPostPublicationDateBefore(String name, byte isActive, Date date);
 }

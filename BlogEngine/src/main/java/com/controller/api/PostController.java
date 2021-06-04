@@ -28,11 +28,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
-//ToDo add Jinq and Pagination
 @RestController
 @RequestMapping("/api/post")
-public class ApiPostController {
+public class PostController {
 
     private final String DEFAULT_OFFSET = "0";
     private final String DEFAULT_LIMIT = "10";
@@ -43,9 +41,7 @@ public class ApiPostController {
     private final UserService userService;
 
     @Autowired
-    public ApiPostController(PostService postService,
-                             VoteService voteService,
-                             UserService userService) {
+    public PostController(PostService postService, VoteService voteService, UserService userService) {
         this.postService = postService;
         this.voteService = voteService;
         this.userService = userService;
@@ -69,9 +65,8 @@ public class ApiPostController {
     public ResponseEntity<PostResponse> my(@RequestParam(defaultValue = DEFAULT_OFFSET) String offset,
                                            @RequestParam(defaultValue = DEFAULT_LIMIT) String limit,
                                            @RequestParam String status) {
-        String mail = AuthService.getCurrentEmail();
-        int userId = userService.getUserByMail(mail).getId();
-        return ResponseEntity.ok(postService.getResponseMyPostsByMode(userId, status));
+        int userId = userService.getUserByMail(AuthService.getCurrentEmail()).orElseThrow().getId();
+        return ResponseEntity.ok(postService.getResponseMyPostsByMode(userId, status, offset, limit));
     }
 
     @GetMapping("/moderation")
@@ -80,7 +75,7 @@ public class ApiPostController {
                                                    @RequestParam(defaultValue = DEFAULT_LIMIT) String limit,
                                                    @RequestParam String status) {
 
-        int id = userService.getUserByMail(AuthService.getCurrentEmail()).getId();
+        int id = userService.getUserByMail(AuthService.getCurrentEmail()).orElseThrow().getId();
         return ResponseEntity.ok().body(postService.getPostsToModerate(id, offset, limit, status));
     }
 
@@ -160,10 +155,10 @@ public class ApiPostController {
 
     private Map<String, String> checkData(PostRequest request) {
         Map<String, String> result = new HashMap<>();
-        if (request.getTitle().trim().length() < 3) {
+        if (request.getTitle().trim().length() < PostService.MIN_TITLE) {
             result.put(BlogError.TITLE.name().toLowerCase(), BlogError.TITLE.getValue());
         }
-        if (request.getText().trim().length() < 50) {
+        if (request.getText().trim().length() < PostService.MIN_TEXT) {
             result.put(BlogError.TEXT.name().toLowerCase(), BlogError.TEXT.getValue());
         }
         return result;

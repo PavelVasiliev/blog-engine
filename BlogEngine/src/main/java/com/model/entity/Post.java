@@ -100,8 +100,8 @@ public class Post implements Comparable<Post> {
     private void update(byte isActive, String title, long timestamp, String text) {
         this.isActive = isActive;
         this.title = title;
-        publicationDate = new Date(timestamp * 1000);
         this.text = text;
+        publicationDate = new Date(timestamp * 1000);
     }
 
     private int getScore() {

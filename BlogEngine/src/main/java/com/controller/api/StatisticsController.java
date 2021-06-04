@@ -29,6 +29,6 @@ public class StatisticsController {
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<StatisticsResponse> statisticsAll() {
-        return statisticsService.getAllStats(); //ToDo check for settings STATISTICS_IS_PUBLIC
+        return statisticsService.getAllStats();
     }
 }

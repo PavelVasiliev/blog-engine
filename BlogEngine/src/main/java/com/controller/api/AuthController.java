@@ -32,17 +32,17 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-public class ApiAuthController {
+public class AuthController {
     private final AuthService authService;
     private final CaptchaService captchaService;
     private final UserService userService;
     private final PostService postService;
 
     @Autowired
-    public ApiAuthController(AuthService authService,
-                             CaptchaService captchaService,
-                             UserService userService,
-                             PostService postService) {
+    public AuthController(AuthService authService,
+                          CaptchaService captchaService,
+                          UserService userService,
+                          PostService postService) {
         this.authService = authService;
         this.captchaService = captchaService;
         this.userService = userService;
@@ -63,12 +63,16 @@ public class ApiAuthController {
     public AuthResponse login(@RequestBody LoginRequest loginRequest) {
         AuthResponse authResponse = new AuthResponse();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        User user = userService.getUserByMail(loginRequest.getEmail());
-        if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            authResponse.setResult(true);
-            authResponse.setUser(user.isModerator() ?
-                    UserService.getModeratorDTO(user, postService.countPostsToModerator(user.getId(), PostStatus.NEW)): UserDTO.makeSimpleUserDTO(user));
-            authService.authorize(user);
+
+        if (userService.isUserExist(loginRequest.getEmail())) {
+            User user = userService.getUserByMail(loginRequest.getEmail()).orElseThrow();
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                authResponse.setResult(true);
+                authResponse.setUser(user.isModerator() ?
+                        UserService.getModeratorDTO(user, postService
+                                .countPostsToModerator(user.getId(), PostStatus.NEW)) : UserDTO.makeSimpleUserDTO(user));
+                authService.authorize(user);
+            }
         }
         return authResponse;
     }
@@ -102,16 +106,17 @@ public class ApiAuthController {
         }
         return response;
     }
+
     @PostMapping("/restore")
-    public DefaultResponse sendRestoreCode(@RequestBody RestorePassRequest request){
+    public DefaultResponse sendRestoreCode(@RequestBody RestorePassRequest request) {
         return authService.sendRestoreCode(request.getEmail());
     }
 
     @PostMapping("/password")
-    public DefaultResponse restore(@RequestBody RestorePassRequest request){
+    public DefaultResponse restore(@RequestBody RestorePassRequest request) {
         DefaultResponse response = new DefaultResponse();
-        Map<String,String> errors = checkData(request);
-        if(errors.isEmpty()){
+        Map<String, String> errors = checkData(request);
+        if (errors.isEmpty()) {
             response.setResult(true);
             authService.changePassword(request.getCode(), request.getPassword());
         } else {
@@ -131,7 +136,7 @@ public class ApiAuthController {
         if (!UserService.validateName(request.getName())) {
             result.put(BlogError.NAME.name().toLowerCase(), BlogError.NAME.getValue());
         }
-        if(request.getPassword() != null) {
+        if (request.getPassword() != null) {
             if (!UserService.validatePassword((byte) request.getPassword().length())) {
                 result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getValue());
             }
@@ -140,8 +145,8 @@ public class ApiAuthController {
     }
 
     private Map<String, String> checkData(RestorePassRequest request) {
-        Map<String,String> result = new HashMap<>();
-        if(!userService.isCodeRight("%" + request.getCode())){
+        Map<String, String> result = new HashMap<>();
+        if (!userService.isCodeRight("%" + request.getCode())) {
             result.put(BlogError.CODE.name().toLowerCase(), BlogError.CODE.getValue());
         }
         if (!UserService.validatePassword((byte) request.getPassword().length())) {

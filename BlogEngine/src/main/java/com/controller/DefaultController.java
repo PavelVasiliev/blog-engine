@@ -24,7 +24,6 @@ public class DefaultController {
         return "index";
     }
 
-    //ToDo correct redirect
     @GetMapping("/posts/{mode}")
     public String getPosts(@PathVariable String mode, Model model) {
         postService.getResponseByModerationStatus(mode);

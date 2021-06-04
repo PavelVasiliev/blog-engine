@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -40,13 +41,8 @@ public class ProfileController {
                                               @RequestParam("name") String name,
                                               @RequestParam(value = "password", required = false) String password,
                                               @RequestParam("removePhoto") byte removePhoto) {
-        ModifyUserRequest req = new ModifyUserRequest();
-        req.setPhoto(new MultipartFileImpl(photo));
-        req.setEmail(email);
-        req.setPassword(password);
-        req.setRemovePhoto(removePhoto);
-        req.setName(name);
-        return modifyProfile(req);
+        return modifyProfile(new ModifyUserRequest(
+                name, email, password, new MultipartFileImpl(photo), removePhoto));
     }
 
     @PostMapping("/my")
@@ -59,9 +55,8 @@ public class ProfileController {
         Map<String, String> errors = checkData(request);
         if (errors.isEmpty()) {
             response.setResult(true);
-            String mail = AuthService.getCurrentEmail();
-            User user = userService.getUserByMail(mail);
-            userService.editUserProfile(request, user);
+            Optional<User> optional = userService.getUserByMail(AuthService.getCurrentEmail());
+            optional.ifPresent(user -> userService.editUserProfile(request, user));
         } else {
             response.setErrors(errors);
         }

@@ -34,7 +34,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-public class ApiGeneralController {
+public class GeneralController {
+    private static final String PATH_IMAGE = "/upload/";
     private final InitResponse initResponse;
     private final TagService tagService;
     private final SettingsService settingsService;
@@ -43,12 +44,12 @@ public class ApiGeneralController {
     private final UserService userService;
 
     @Autowired
-    public ApiGeneralController(InitResponse initResponse,
-                                TagService tagService,
-                                SettingsService settingsService,
-                                CalendarService calendarService,
-                                CommentService commentService,
-                                UserService userService) {
+    public GeneralController(InitResponse initResponse,
+                             TagService tagService,
+                             SettingsService settingsService,
+                             CalendarService calendarService,
+                             CommentService commentService,
+                             UserService userService) {
         this.initResponse = initResponse;
         this.tagService = tagService;
         this.settingsService = settingsService;
@@ -107,7 +108,7 @@ public class ApiGeneralController {
     public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile mf) {
         if (Image.MAX_SIZE > mf.getSize()) {
             String name = mf.getOriginalFilename();
-            String path = Image.makePath("/upload/");
+            String path = Image.makePath(PATH_IMAGE);
             Image image = new Image(name);
             return ResponseEntity.ok(image.save(mf, path));
         } else {

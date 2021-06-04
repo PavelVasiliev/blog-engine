@@ -16,7 +16,7 @@ public class UserDTO {
     private String photo;
     private boolean moderation;
     private int moderationCount;
-    private boolean settings = true;
+    private final boolean settings = true;
 
     public static UserDTO makeUserDTOWithPhoto(User user) {
         return new UserDTO(

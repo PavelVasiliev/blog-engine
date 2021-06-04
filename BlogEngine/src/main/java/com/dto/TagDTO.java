@@ -15,6 +15,10 @@ public class TagDTO implements Comparable<TagDTO> {
 
     @Override
     public int compareTo(TagDTO o) {
-        return (int) (o.getWeight() * 100 - this.getWeight() * 100);
+        return normalize(o.getWeight()) - normalize(this.getWeight());
+    }
+
+    private int normalize(double tagWeight){
+        return (int) (tagWeight*100);
     }
 }
