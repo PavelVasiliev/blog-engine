@@ -24,14 +24,11 @@ import java.util.stream.Collectors;
 public class TagService {
     private final TagRepository tagRepository;
     private final PostRepository postRepository;
-    private final Tag2PostRepository tag2PostRepository;
 
     @Autowired
-    public TagService(TagRepository tagRepository, PostRepository postRepository,
-                      Tag2PostRepository tag2PostRepository) {
+    public TagService(TagRepository tagRepository, PostRepository postRepository) {
         this.tagRepository = tagRepository;
         this.postRepository = postRepository;
-        this.tag2PostRepository = tag2PostRepository;
     }
 
     public TagResponse getTagWeight(String query) {
@@ -39,26 +36,18 @@ public class TagService {
         List<TagDTO> result = new ArrayList<>();
         Map<String, Double> temp = new TreeMap<>();
 
-        int postsAmount = postRepository.findAll().size();
+        int postsAmount = postRepository.postsActiveCurrent().size();
         int mostPopularTagAmount = 0;
         List<String> tagNames = makeTagsList(query);
         for (String tagName : tagNames) {
-            int postsWithTag = tag2PostRepository
-                    .countAllByTagNameLikeAndPostIsActiveAndPostPublicationDateBefore
-                            ("%" + tagName, (byte) 1, new Date());
+            int postsWithTag = (int) postRepository.streamByTag(tagName).count();
             if (postsWithTag > mostPopularTagAmount) {
                 mostPopularTagAmount = postsWithTag;
             }
-            switch (postsAmount) {
-                case 0:
-                    temp.remove(tagName);
-                    break;
-                default:
-                    temp.put(tagName, normalize(postsWithTag * 1. / postsAmount));
-                    break;
+            if (postsWithTag > 0) {
+                temp.put(tagName, normalize(postsWithTag * 1. / postsAmount));
             }
         }
-
         double dWeightMax = normalize(1. * mostPopularTagAmount / postsAmount);
         double k = normalize(1 / dWeightMax);
         for (String name : temp.keySet()) {

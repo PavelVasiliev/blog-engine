@@ -3,7 +3,7 @@ package com.service;
 import com.api.request.ModifyUserRequest;
 import com.api.response.DefaultResponse;
 import com.dto.UserDTO;
-import com.model.Image;
+import com.model.BlogImage;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.Post;
 import com.model.entity.User;
@@ -89,12 +89,12 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
         if (request.getPhoto() != null) {
-            String path = Image.makePath("/avatars/");
+            String path = BlogImage.makePath("/avatars/");
             String name = request.getPhoto().getOriginalFilename();
             user.setPhoto(path + name);
 
-            Image avatar = new Image(name);
-            avatar.save(request.getPhoto(), path);
+            BlogImage avatar = new BlogImage(name);
+            avatar.save(request.getPhoto(), path, true);
         }
         if (request.getRemovePhoto() == (byte) 1) {
             user.setPhoto("");
@@ -108,12 +108,7 @@ public class UserService {
         if (optional.isPresent()) {
             Post post = postRepository.getOne(postId);
             User moderator = optional.get();
-            PostStatus status;
-            if (decision.equalsIgnoreCase("accept")) {
-                status = PostStatus.ACCEPTED;
-            } else {
-                status = PostStatus.DECLINED;
-            }
+            PostStatus status = decision.equalsIgnoreCase("accept") ? PostStatus.ACCEPTED : PostStatus.DECLINED;
             moderator.moderate(post, status);
             postRepository.save(post);
             response.setResult(true);

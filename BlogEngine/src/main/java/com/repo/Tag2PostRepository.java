@@ -14,6 +14,4 @@ public interface Tag2PostRepository extends JpaRepository<Tag2Post, Integer> {
     @Modifying
     @Transactional
     void deleteAllByPostId(int postId);
-
-    int countAllByTagNameLikeAndPostIsActiveAndPostPublicationDateBefore(String name, byte isActive, Date date);
 }

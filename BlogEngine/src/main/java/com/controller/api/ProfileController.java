@@ -2,7 +2,7 @@ package com.controller.api;
 
 import com.api.request.ModifyUserRequest;
 import com.api.response.DefaultResponse;
-import com.model.Image;
+import com.model.BlogImage;
 import com.model.MultipartFileImpl;
 import com.model.blog_enum.BlogError;
 import com.model.entity.User;
@@ -73,7 +73,7 @@ public class ProfileController {
             }
         }
         if (request.getPhoto() != null) {
-            if (request.getPhoto().getSize() > Image.MAX_SIZE) {
+            if (request.getPhoto().getSize() > BlogImage.MAX_SIZE) {
                 result.put(BlogError.PHOTO.name().toLowerCase(), BlogError.PHOTO.getValue());
             }
         }

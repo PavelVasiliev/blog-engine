@@ -9,10 +9,11 @@ import com.api.response.DefaultResponse;
 import com.api.response.InitResponse;
 import com.api.response.SettingsResponse;
 import com.api.response.TagResponse;
-import com.model.Image;
+import com.model.BlogImage;
 import com.model.blog_enum.BlogError;
 import com.service.CalendarService;
 import com.service.CommentService;
+import com.service.PostService;
 import com.service.SettingsService;
 import com.service.TagService;
 import com.service.UserService;
@@ -42,6 +43,7 @@ public class GeneralController {
     private final CalendarService calendarService;
     private final CommentService commentService;
     private final UserService userService;
+    private final PostService postService;
 
     @Autowired
     public GeneralController(InitResponse initResponse,
@@ -49,13 +51,15 @@ public class GeneralController {
                              SettingsService settingsService,
                              CalendarService calendarService,
                              CommentService commentService,
-                             UserService userService) {
+                             UserService userService,
+                             PostService postService) {
         this.initResponse = initResponse;
         this.tagService = tagService;
         this.settingsService = settingsService;
         this.calendarService = calendarService;
         this.commentService = commentService;
         this.userService = userService;
+        this.postService = postService;
     }
 
     @GetMapping("/init")
@@ -93,8 +97,12 @@ public class GeneralController {
     @PostMapping("/comment")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<CommentResponse> comment(@RequestBody CommentRequest request) {
+        if(!checkData(request)){
+            return ResponseEntity.badRequest().body(new CommentResponse());
+        }
+
         CommentResponse response = new CommentResponse();
-        Map<String, String> errors = checkData(request);
+        Map<String, String> errors = checkText(request);
         if (errors.isEmpty()) {
             return commentService.comment(request);
         } else {
@@ -106,11 +114,12 @@ public class GeneralController {
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile mf) {
-        if (Image.MAX_SIZE > mf.getSize()) {
-            String name = mf.getOriginalFilename();
-            String path = Image.makePath(PATH_IMAGE);
-            Image image = new Image(name);
-            return ResponseEntity.ok(image.save(mf, path));
+        String name = mf.getOriginalFilename();
+        assert name != null;
+        if (BlogImage.MAX_SIZE > mf.getSize() || !name.endsWith("jpg") || !name.endsWith("png")) {
+            String path = BlogImage.makePath(PATH_IMAGE);
+            BlogImage blogImage = new BlogImage(name);
+            return ResponseEntity.ok(blogImage.save(mf, path, false));
         } else {
             DefaultResponse response = new DefaultResponse();
             Map<String, String> errors = new HashMap<>();
@@ -121,11 +130,17 @@ public class GeneralController {
         }
     }
 
-    private Map<String, String> checkData(CommentRequest request) {
+    private Map<String, String> checkText(CommentRequest request) {
         Map<String, String> result = new HashMap<>();
         if (request.getText().length() < 3) {
             result.put(BlogError.Text.name().toLowerCase(), BlogError.Text.getValue());
         }
         return result;
+    }
+
+    private boolean checkData(CommentRequest request) {
+        return request.getParentId() != null ? commentService.findById(request.getParentId()).isPresent()
+                || postService.findById(Integer.parseInt(request.getPostId())).isPresent()
+                : postService.findById(Integer.parseInt(request.getPostId())).isPresent();
     }
 }

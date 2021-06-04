@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -77,5 +78,9 @@ public class CommentService {
             }
         }
         return ResponseEntity.badRequest().body(response);
+    }
+
+    public Optional<Comment> findById(String id) {
+        return commentRepository.findById(Integer.parseInt(id));
     }
 }

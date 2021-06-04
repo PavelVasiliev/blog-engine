@@ -5,7 +5,6 @@ import com.api.response.DefaultResponse;
 import com.dto.UserDTO;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.User;
-import com.repo.PostRepository;
 import com.repo.UserRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class AuthService {
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (user.isModerator()) {
-            int postsModerate = postService.countNewActiveCurrentPosts();
+            int postsModerate = postService.countActiveCurrentPosts();
             authResponse.setUser(UserDTO.makeModeratorDTO(user, postsModerate));
         } else {
             authResponse.setUser(UserDTO.makeSimpleUserDTO(user));

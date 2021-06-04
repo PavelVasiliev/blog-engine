@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,18 +18,18 @@ import java.util.Random;
 @Setter
 @Getter
 @NoArgsConstructor
-public class Image {
+public class BlogImage {
     public static final int MAX_SIZE = 5242880;
     private final static String PATH = "";
     private String name;
     private String path;
     private byte[] content;
 
-    public Image(String name) {
+    public BlogImage(String name) {
         this.name = name;
     }
 
-    public String save(MultipartFile file, String path) {
+    public String save(MultipartFile file, String path, boolean isAvatar) {
         this.path = path + name;
         File dir = new File(PATH + path);
         File f;
@@ -41,7 +42,7 @@ public class Image {
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(file.getBytes());
             BufferedImage bi = ImageIO.read(input);
-            ImageIO.write(bi, format, f);
+            ImageIO.write(isAvatar ? makeAvatar(bi) : bi, format, f);
             input.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,5 +61,14 @@ public class Image {
             sb.append(fileSeparator);
         }
         return root + sb;
+    }
+
+    private BufferedImage makeAvatar(BufferedImage originalImage) {
+        int height = 36;
+        int width = height;
+        Image resultingImage = originalImage.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+        BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+        return outputImage;
     }
 }

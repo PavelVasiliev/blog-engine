@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> postsByUserId(int id);
 
-    long countActiveCurrentPosts();
-
     List<Post> postsActiveCurrent();
 
     List<Post> postsByCurrent(int offset, int limit);
@@ -26,7 +24,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     List<Post> postsByPopularity(int offset, int limit);
 
-    Stream<Post> streamByDate(Date after, Date before);
+    Stream<Post> streamByDateBetween(Date after, Date before);
 
     Stream<Post> streamByQuery(String query);
 

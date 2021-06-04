@@ -61,12 +61,16 @@ public class PostService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public Optional<Post> findById(int id) {
+        return postRepository.findById(id);
+    }
+
     public List<Post> getPostsByUserId(int id) {
         return postRepository.postsByUserId(id);
     }
 
-    public int countNewActiveCurrentPosts() {
-        return (int) postRepository.countActiveCurrentPosts();
+    public int countActiveCurrentPosts() {
+        return postRepository.postsActiveCurrent().size();
     }
 
     public List<Post> getActivePosts() {
@@ -104,7 +108,7 @@ public class PostService {
             currentUser = optional.get();
         }
 
-        Optional<Post> p = postRepository.findById(id);
+        Optional<Post> p = findById(id);
         if (p.isPresent()) {
             Post post = p.get();
             post.update(
@@ -129,7 +133,6 @@ public class PostService {
             }
         }
         throw new ResponseStatusException(
-                //ToDo 404 page
                 HttpStatus.NOT_FOUND
         );
     }
@@ -140,7 +143,7 @@ public class PostService {
         PostResponse postResponse = new PostResponse();
         int offset = Integer.parseInt(offsetString);
         int limit = Integer.parseInt(limitString) + offset;
-        postResponse.setCount(countNewActiveCurrentPosts());
+        postResponse.setCount(countActiveCurrentPosts());
 
         PostStatus moderationStatus = PostStatus.valueOf(postMode.toUpperCase());
         switch (moderationStatus) {
@@ -196,7 +199,7 @@ public class PostService {
         Calendar after = new GregorianCalendar(year, Calendar.JANUARY, 1);
         Calendar before = new GregorianCalendar(year + 1, Calendar.JANUARY, 1);
         return givePostsDTOs(postRepository
-                .streamByDate(after.getTime(), before.getTime()).collect(Collectors.toList()));
+                .streamByDateBetween(after.getTime(), before.getTime()).collect(Collectors.toList()));
     }
 
     public PostResponse getResponseByDate(String offsetString, String limitString, String date) {
@@ -208,10 +211,10 @@ public class PostService {
             long day = 86_400_000;
             Date before = new Date(after.getTime() + day);
 
-            postResponse.setCount((int) postRepository.streamByDate(after, before)
+            postResponse.setCount((int) postRepository.streamByDateBetween(after, before)
                     .count());
             postResponse.setPosts(givePostsDTOs(postRepository
-                    .streamByDate(after, before)
+                    .streamByDateBetween(after, before)
                     .skip(offset)
                     .limit(limit)
                     .collect(Collectors.toList())));
@@ -330,10 +333,13 @@ public class PostService {
     }
 
     public ResponseEntity<PostDTO> getPostDTO(int id) {
+        System.out.println("we r here?");
         PostDTO result;
 
         Optional<Post> postOptional = postRepository.optionalPostById(id);
+        System.out.println(postOptional.isEmpty() + " post null?");
         if (postOptional.isEmpty()) {
+            System.out.println("optional post");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new PostDTO());
         }
 
@@ -341,17 +347,24 @@ public class PostService {
         Optional<User> optional = userRepository.findByEmail(AuthService.getCurrentEmail());
         UserDTO userDTO;
         if (optional.isPresent()) {
+            System.out.println("optional user");
+
             User user = optional.get();
             if (user.isModerator()) {
-                userDTO = UserDTO.makeModeratorDTO(user, countNewActiveCurrentPosts());
+                System.out.println("moder");
+
+                userDTO = UserDTO.makeModeratorDTO(user, countActiveCurrentPosts());
             } else {
+                System.out.println("user");
+
                 userDTO = UserDTO.makeSimpleUserDTO(user);
                 if (user.getId() != post.getId()) {
                     incrementPostViews(post.getId()); //increment only for registered users
                 }
             }
-        } else userDTO = new UserDTO(); //unregistered user
-
+        } else {
+            userDTO = new UserDTO();
+        }
         result = makeDTOWithTagsAndComments(post, userDTO);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
