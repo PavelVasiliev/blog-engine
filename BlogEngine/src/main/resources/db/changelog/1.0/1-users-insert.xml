@@ -9,28 +9,28 @@
             <column name="reg_time" value="11111111"/>
             <column name="name" value="Moderator First"/>
             <column name="email" value="moderator@gmail.com"/>
-            <column name="password" value="115566"/>
+            <column name="password" value="$2a$10$QvJSPfXPy1sG3GuZvN88N.OMxeZ5SePc7QBwpokyeMTdFUB1fl.JG"/>
         </insert>
         <insert tableName="users">
             <column name="is_moderator" value="1"/>
             <column name="reg_time" value="11111111222"/>
             <column name="name" value="MOD"/>
             <column name="email" value="mod@gmail.com"/>
-            <column name="password" value="$2y$12$0RE.JYVredcxIGbBHujT0um3GclURlrnyd.Qh4DYedt5Iv3WK7Fdy"/>
+            <column name="password" value="$2a$10$QvJSPfXPy1sG3GuZvN88N.OMxeZ5SePc7QBwpokyeMTdFUB1fl.JG"/>
         </insert>
         <insert tableName="users">
             <column name="is_moderator" value="0"/>
             <column name="reg_time" value="11111111221"/>
             <column name="name" value="Simple User2"/>
             <column name="email" value="user2@gmail.com"/>
-            <column name="password" value="$2y$12$CbFdgJS6fUX2rX.rKxYQ6ewuVLmb2M7Bk/y4VyevN4QeJMv5nRa1e"/>
+            <column name="password" value="$2a$10$QvJSPfXPy1sG3GuZvN88N.OMxeZ5SePc7QBwpokyeMTdFUB1fl.JG"/>
         </insert>
         <insert tableName="users">
             <column name="is_moderator" value="0"/>
             <column name="reg_time" value="11111121221"/>
             <column name="name" value="Simple User3"/>
             <column name="email" value="user3@gmail.com"/>
-            <column name="password" value="$2y$12$ak8GrqZack/UH3Etk5cKGur5xjBe4nuI.dLjzktxuqQA3Jo.OsFtO"/>
+            <column name="password" value="$2a$10$QvJSPfXPy1sG3GuZvN88N.OMxeZ5SePc7QBwpokyeMTdFUB1fl.JG"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

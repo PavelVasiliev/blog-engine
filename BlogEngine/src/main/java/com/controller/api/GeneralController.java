@@ -118,7 +118,11 @@ public class GeneralController {
         assert name != null;
         if (BlogImage.MAX_SIZE > mf.getSize() || !name.endsWith("jpg") || !name.endsWith("png")) {
             String path = BlogImage.makePath(PATH_IMAGE);
+            System.out.println("path in post_addImage() = " + path);
+
             BlogImage blogImage = new BlogImage(name);
+            System.out.println("blog_image.name = " + name);
+
             return ResponseEntity.ok(blogImage.save(mf, path, false));
         } else {
             DefaultResponse response = new DefaultResponse();

@@ -17,12 +17,14 @@ public class MvcConfig implements WebMvcConfigurer {
                     "classpath:/public/",
             };
 
+
+    //ToDo static res path
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/upload/**")
-                .addResourceLocations("file:///upload/");
+                .addResourceLocations("file:///Desc/Java/java_basics/Diploma/Blog/upload/");
         registry.addResourceHandler("/avatars/**")
-                .addResourceLocations("file:///avatars/");
+                .addResourceLocations("file:///Desc/Java/java_basics/Diploma/Blog/avatars/");
         registry.addResourceHandler("/**")
                 .addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
 

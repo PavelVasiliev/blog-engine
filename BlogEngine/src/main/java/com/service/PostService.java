@@ -160,7 +160,6 @@ public class PostService {
                 return postResponse;
             }
 
-            //ToDo make it normal
             case BEST: {
                 postResponse.setPosts(
                         givePostsDTOs(

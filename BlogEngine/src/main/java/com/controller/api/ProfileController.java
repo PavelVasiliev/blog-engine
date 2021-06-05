@@ -49,7 +49,7 @@ public class ProfileController {
     @PreAuthorize("hasAuthority('user:write')")
     public DefaultResponse modifyProfile(@RequestBody ModifyUserRequest request) {
         if (request.getRemovePhoto() == 1) {
-            request.setPhoto(null);
+            request.setPhoto(null); //ToDo delete avatar from server
         }
         DefaultResponse response = new DefaultResponse();
         Map<String, String> errors = checkData(request);

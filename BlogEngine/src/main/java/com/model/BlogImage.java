@@ -14,13 +14,12 @@ import java.io.IOException;
 import java.util.Random;
 
 
-//ToDo method 36*36 avatar size
 @Setter
 @Getter
 @NoArgsConstructor
 public class BlogImage {
     public static final int MAX_SIZE = 5242880;
-    private final static String PATH = "";
+    private final static String PATH = "/home/paul/Desc/Java/java_basics/Diploma/Blog";
     private String name;
     private String path;
     private byte[] content;
@@ -31,17 +30,21 @@ public class BlogImage {
 
     public String save(MultipartFile file, String path, boolean isAvatar) {
         this.path = path + name;
-        File dir = new File(PATH + path);
+        System.out.println("path in bi.save() = " + this.path);
+        File dir = new File(path);
+        System.out.println("dir.pathName = " + path);
         File f;
         if (!dir.exists()) {
             dir.mkdirs();
         }
         f = new File(dir.getPath() + "/" + name);
+        System.out.println("make file f." +dir.getPath() + "/" + name);
         String format = name.substring(name.lastIndexOf(".") + 1);
 
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(file.getBytes());
             BufferedImage bi = ImageIO.read(input);
+            System.out.println("buff image bi making");
             ImageIO.write(isAvatar ? makeAvatar(bi) : bi, format, f);
             input.close();
         } catch (IOException e) {
@@ -60,7 +63,7 @@ public class BlogImage {
             }
             sb.append(fileSeparator);
         }
-        return root + sb;
+        return PATH + root + sb;
     }
 
     private BufferedImage makeAvatar(BufferedImage originalImage) {

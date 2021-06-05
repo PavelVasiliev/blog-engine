@@ -11,9 +11,14 @@ import java.io.InputStream;
 public class MultipartFileImpl implements MultipartFile {
 
     private MultipartFile multipartFile;
+    private String name;
 
     public MultipartFileImpl(MultipartFile mf) {
         multipartFile = mf;
+    }
+
+    public MultipartFileImpl(String name) {
+        this.name = name;
     }
 
     @Override
