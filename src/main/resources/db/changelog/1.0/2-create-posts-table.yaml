@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - logicalFilePath: /db/changelog/dbchangelog-master.xml
+  - changeSet:
+      id: 3
+      author: paul
+      changes:
+        - createTable:
+            tableName: posts
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: tinyint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: moderation_status
+                  type: enum('NEW', 'ACCEPTED', 'DECLINED')
+                  defaultValue: NEW
+                  constraints:
+                    nullable: false
+              - column:
+                  name: moderator_id
+                  type: int
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: datetime
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: view_count
+                  type: int
+                  constraints:
+                    nullable: false

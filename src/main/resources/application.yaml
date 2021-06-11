@@ -1,0 +1,23 @@
+spring.datasource.url: jdbc:${JAWSDB_URL?useUnicode=true&characterEncoding=utf-8&reconnect=true
+  :mysql://localhost:3306/blog?useUnicode=true&serverTimezone=Europe/Moscow&characterEncoding=utf-8&reconnect=true}
+spring:
+  datasource:
+    username: root
+    password: root
+server.port: ${PORT:8080}
+spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+spring.liquibase.enabled: true
+spring.liquibase.change-log: classpath:db/changelog/dbchangelog-master.xml
+
+blog.title: DevPub
+blog.subtitle: Дипломная работа
+blog.phone: +7 953 340-24-95
+blog.email: pwasilevroot@gmail.com
+blog.copyright: Павел Васильев
+blog.copyright_from: 2021
+
+captcha.width: 100
+captcha.height: 35
+captcha.live_time: 3600000
+captcha.url: data:image/png;base64,
+captcha.format: jpg
