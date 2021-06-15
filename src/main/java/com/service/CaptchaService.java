@@ -4,6 +4,8 @@ import com.api.response.CaptchaResponse;
 import com.model.image.CaptchaImage;
 import com.model.entity.Captcha;
 import com.repo.CaptchaRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.List;
 public class CaptchaService {
     private final CaptchaRepository captchaRepository;
     private final CaptchaImage captchaImage;
+    private static final Logger logger = LogManager.getLogger(CaptchaService.class);
 
     @Autowired
     public CaptchaService(CaptchaRepository captchaRepository, CaptchaImage captchaImage) {
@@ -41,12 +44,13 @@ public class CaptchaService {
     private void deleteExpired() {
         long time = Long.parseLong(captchaImage.getLiveTime());
         List<Captcha> list = captchaRepository.findByTimeIsLessThan(new Date(System.currentTimeMillis() - time));
-
+        logger.warn(list.size() + " captcha(s) expired. deleting..");
         list.forEach(captchaRepository::delete);
     }
 
     private void saveCaptcha(String code, String secretCode) {
         captchaRepository.save(new Captcha(new Date(), code, secretCode));
+        logger.info("New captcha generated." + code);
     }
 
     private String generateSecretCode(String code) {

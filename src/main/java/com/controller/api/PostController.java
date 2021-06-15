@@ -138,6 +138,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<DefaultResponse> editPost(@PathVariable int id,
                                                     @RequestBody PostRequest request) {
         DefaultResponse response = new DefaultResponse();

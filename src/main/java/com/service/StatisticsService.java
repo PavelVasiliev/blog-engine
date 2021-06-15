@@ -29,7 +29,6 @@ public class StatisticsService {
     public StatisticsResponse getMyStats() {
         Optional<User> optional = userService.getUserByMail(AuthService.getCurrentEmail());
         if(optional.isEmpty()){
-            //ToDo logger
             return new StatisticsResponse();
         }
         User user = optional.get();

@@ -14,6 +14,8 @@ import com.repo.CommentRepository;
 import com.repo.PostRepository;
 import com.repo.TagRepository;
 import com.repo.UserRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,8 @@ public class PostService {
     private final JdbcTemplate jdbcTemplate;
     @Qualifier("postRepositoryImpl")
     private final PostRepository postRepository;
+    private static final Logger logger = LogManager.getLogger(PostService.class);
+
 
     @Autowired
     public PostService(PostRepository postRepository, UserRepository userRepository,
@@ -100,6 +104,7 @@ public class PostService {
 
         post.setTags(tags);
         postRepository.save(post);
+        logger.info(user.getEmail() + " posted " + post.getTitle());
     }
 
     public void editPost(int id, PostRequest request, long time) {
@@ -219,7 +224,7 @@ public class PostService {
                     .limit(limit)
                     .collect(Collectors.toList())));
         } catch (ParseException e) {
-            e.printStackTrace(); //ToDo logger
+            logger.error("Cant parse date - " + date);
         }
         return postResponse;
     }

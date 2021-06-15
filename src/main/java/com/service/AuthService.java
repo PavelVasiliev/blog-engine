@@ -7,6 +7,8 @@ import com.model.blog_enum.PostStatus;
 import com.model.entity.User;
 import com.repo.UserRepository;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +25,7 @@ public class AuthService {
     private final PostService postService;
     @Getter
     private final String RESTORE_LINK = "/login/change-password/";
+    private static final Logger logger = LogManager.getLogger(AuthService.class);
 
     @Autowired
     public AuthService(UserRepository userRepository, PostService postService) {
@@ -30,7 +33,6 @@ public class AuthService {
         this.postService = postService;
     }
 
-    //ToDo JWT?
     public AuthResponse authorize(User user) {
         AuthResponse authResponse = new AuthResponse();
         SecurityContextHolder.getContext()
@@ -41,6 +43,7 @@ public class AuthService {
         } else {
             authResponse.setUser(UserDTO.makeSimpleUserDTO(user));
         }
+        logger.info("User " + user.getEmail() + " authorized.");
         return authResponse;
     }
 
@@ -81,19 +84,22 @@ public class AuthService {
             User user = optional.get();
             user.setCode(generateCodeRestore(email));
             userRepository.save(user);
+            logger.warn("User " + email + " had asked for password restore.");
         }
         return response;
-    }
-
-    private String generateCodeRestore(String email) {
-        String hash = new BCryptPasswordEncoder().encode(email + new Date());
-        hash = hash.replaceAll("[</.*$?>]", "");
-        return RESTORE_LINK + hash;
     }
 
     public void changePassword(String code, String password) {
         User user = userRepository.findByCodeIsLike("%" + code);
         user.setPassword(new BCryptPasswordEncoder().encode(password));
         userRepository.save(user);
+        logger.warn(user.getEmail() + " has changed password");
+    }
+
+
+    private String generateCodeRestore(String email) {
+        String hash = new BCryptPasswordEncoder().encode(email + new Date());
+        hash = hash.replaceAll("[</.*$?>]", "");
+        return RESTORE_LINK + hash;
     }
 }

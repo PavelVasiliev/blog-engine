@@ -10,6 +10,8 @@ import com.model.entity.User;
 import com.repo.CommentRepository;
 import com.repo.PostRepository;
 import com.repo.UserRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private static final Logger logger = LogManager.getLogger(CommentService.class);
 
     @Autowired
     public CommentService(CommentRepository commentRepository,
@@ -69,6 +72,7 @@ public class CommentService {
                         request.getText());
                 response.setId(comment.getId());
                 commentRepository.save(comment);
+                logger.info(post.getUser().getEmail() + " left a comment to post " + post.getId());
                 return ResponseEntity.ok(response);
             }
         }

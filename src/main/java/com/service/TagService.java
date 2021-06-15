@@ -48,12 +48,12 @@ public class TagService {
         }
         double dWeightMax = normalize(1. * mostPopularTagAmount / postsAmount);
         double k = normalize(1 / dWeightMax);
-        for (String name : temp.keySet()) {
+        temp.keySet().forEach(name -> {
             double value = temp.get(name);
             if (value != 0.) {
                 result.add(new TagDTO(name, normalize(value * k)));
             }
-        }
+        });
         Collections.sort(result);
         tagResponse.setTags(result);
         deleteUnusedTags();

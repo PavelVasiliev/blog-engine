@@ -8,6 +8,8 @@ import com.model.entity.Post;
 import com.model.entity.User;
 import com.repo.PostRepository;
 import com.repo.UserRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ public class UserService {
     private static final byte MIN_PASSWORD_LENGTH = 6;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private static final Logger logger = LogManager.getLogger(AuthService.class);
+
 
     @Autowired
     public UserService(UserRepository userRepository, PostRepository postRepository) {
@@ -70,6 +74,9 @@ public class UserService {
     public void saveUser(User user) {
         if (!isUserExist(user.getEmail())) {
             userRepository.save(user);
+
+            String log = "User " + user.getEmail() + " created with id " + user.getId();
+            logger.info(log);
         }
     }
 
@@ -96,6 +103,9 @@ public class UserService {
             user.setPhoto("");
         }
         userRepository.save(user);
+
+        String log = "User " + user.getEmail() + " updated profile.";
+        logger.info(log);
     }
 
     public DefaultResponse moderate(int postId, String decision) {
@@ -108,6 +118,9 @@ public class UserService {
             moderator.moderate(post, status);
             postRepository.save(post);
             response.setResult(true);
+
+            String log = "Moderator " + moderator.getId() + " has " + status.name() + " post " + postId;
+            logger.info(log);
             return response;
         }
         return response;
