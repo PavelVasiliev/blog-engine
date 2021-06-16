@@ -1,10 +1,5 @@
 spring.datasource.url: jdbc:${JAWSDB_URL}
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: create
-server.port: ${PORT:8080}
-
+server.port: ${PORT}
 spring.liquibase.enabled: true
 spring.liquibase.change-log: classpath:db/changelog/dbchangelog-master.xml
 
