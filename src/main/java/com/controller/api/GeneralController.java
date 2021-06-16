@@ -10,7 +10,7 @@ import com.api.response.InitResponse;
 import com.api.response.SettingsResponse;
 import com.api.response.TagResponse;
 import com.model.blog_enum.BlogError;
-import com.model.entity.ImageExtension;
+import com.model.blog_enum.ImageExtension;
 import com.model.image.BlogImage;
 import com.service.BlogImageService;
 import com.service.CalendarService;

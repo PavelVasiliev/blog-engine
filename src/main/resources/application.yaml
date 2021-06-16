@@ -1,6 +1,10 @@
 spring.datasource.url: jdbc:${JAWSDB_URL}
-server.port: ${PORT}
-spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+server.port: ${PORT:8080}
+
 spring.liquibase.enabled: true
 spring.liquibase.change-log: classpath:db/changelog/dbchangelog-master.xml
 
