@@ -1,14 +1,10 @@
 package com.api.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
 public class PostRequest {
     private long timestamp;
     private byte active;

@@ -16,9 +16,9 @@ public enum BlogError {
     CODE("Ссылка для восстановления пароля устарела. " +
             "<a href=\"/auth/restore\">Запросить ссылку снова</a>");
 
-    private final String value;
+    private final String description;
 
-    BlogError(String value) {
-        this.value = value;
+    BlogError(String description) {
+        this.description = description;
     }
 }

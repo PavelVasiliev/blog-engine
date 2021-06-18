@@ -3,11 +3,10 @@ package com.api.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class SettingsRequest {
     @JsonProperty("MULTIUSER_MODE")
     private boolean multiuserMode;
@@ -22,5 +21,14 @@ public class SettingsRequest {
         data[1] = postPremoderation;
         data[2] = statisticIsPublic;
         return data;
+    }
+
+    @Override
+    public String toString() {
+        return "SettingsRequest{" +
+                "multiuserMode=" + multiuserMode +
+                ", postPremoderation=" + postPremoderation +
+                ", statisticIsPublic=" + statisticIsPublic +
+                '}';
     }
 }

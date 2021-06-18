@@ -30,7 +30,6 @@ public class TagService {
     }
 
     public TagResponse getTagWeight(String query) {
-        TagResponse tagResponse = new TagResponse();
         List<TagDTO> result = new ArrayList<>();
         Map<String, Double> temp = new TreeMap<>();
 
@@ -55,7 +54,7 @@ public class TagService {
             }
         });
         Collections.sort(result);
-        tagResponse.setTags(result);
+        TagResponse tagResponse = new TagResponse(result);
         deleteUnusedTags();
         return tagResponse;
     }

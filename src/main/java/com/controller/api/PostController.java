@@ -152,14 +152,13 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-
     private Map<String, String> checkData(PostRequest request) {
         Map<String, String> result = new HashMap<>();
-        if (request.getTitle().trim().length() < PostService.MIN_TITLE) {
-            result.put(BlogError.TITLE.name().toLowerCase(), BlogError.TITLE.getValue());
+        if (request.getTitle().trim().length() < PostService.MIN_TITLE_LENGTH) {
+            result.put(BlogError.TITLE.name().toLowerCase(), BlogError.TITLE.getDescription());
         }
-        if (request.getText().trim().length() < PostService.MIN_TEXT) {
-            result.put(BlogError.TEXT.name().toLowerCase(), BlogError.TEXT.getValue());
+        if (request.getText().trim().length() < PostService.MIN_TEXT_LENGTH) {
+            result.put(BlogError.TEXT.name().toLowerCase(), BlogError.TEXT.getDescription());
         }
         return result;
     }

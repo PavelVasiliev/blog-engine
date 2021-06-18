@@ -15,9 +15,9 @@ import java.util.List;
 
 @Service
 public class CaptchaService {
+    private static final Logger logger = LogManager.getLogger(CaptchaService.class);
     private final CaptchaRepository captchaRepository;
     private final CaptchaImage captchaImage;
-    private static final Logger logger = LogManager.getLogger(CaptchaService.class);
 
     @Autowired
     public CaptchaService(CaptchaRepository captchaRepository, CaptchaImage captchaImage) {
@@ -25,7 +25,7 @@ public class CaptchaService {
         this.captchaImage = captchaImage;
     }
 
-    public CaptchaResponse getCaptchaResponse() {
+    public CaptchaResponse getResponse() {
         deleteExpired();
 
         captchaImage.makeImageData();
@@ -49,8 +49,9 @@ public class CaptchaService {
     }
 
     private void saveCaptcha(String code, String secretCode) {
-        captchaRepository.save(new Captcha(new Date(), code, secretCode));
-        logger.info("New captcha generated." + code);
+        Date date = new Date();
+        captchaRepository.save(new Captcha(date, code, secretCode));
+        logger.info("New captcha generated " + date.getTime());
     }
 
     private String generateSecretCode(String code) {

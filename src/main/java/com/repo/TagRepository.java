@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Integer> {
-
     List<Tag> findTagsByPostsIsOrderById(List<Post> posts);
 
     Optional<Tag> findTagByName(String name);

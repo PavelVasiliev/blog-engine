@@ -2,7 +2,6 @@ package com.service;
 
 import com.api.response.AuthResponse;
 import com.api.response.DefaultResponse;
-import com.dto.UserDTO;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.User;
 import com.repo.UserRepository;
@@ -21,11 +20,11 @@ import java.util.Optional;
 
 @Service
 public class AuthService {
+    private static final Logger logger = LogManager.getLogger(AuthService.class);
     private final UserRepository userRepository;
     private final PostService postService;
     @Getter
     private final String RESTORE_LINK = "/login/change-password/";
-    private static final Logger logger = LogManager.getLogger(AuthService.class);
 
     @Autowired
     public AuthService(UserRepository userRepository, PostService postService) {
@@ -39,9 +38,9 @@ public class AuthService {
                 .setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (user.isModerator()) {
             int postsModerate = postService.countActiveCurrentPosts();
-            authResponse.setUser(UserDTO.makeModeratorDTO(user, postsModerate));
+            authResponse.setUser(UserService.getModeratorDTO(user, postsModerate));
         } else {
-            authResponse.setUser(UserDTO.makeSimpleUserDTO(user));
+            authResponse.setUser(UserService.getUserDTO(user));
         }
         logger.info("User " + user.getEmail() + " authorized.");
         return authResponse;

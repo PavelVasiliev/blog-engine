@@ -7,7 +7,6 @@ import com.model.image.MultipartFileImpl;
 import com.model.blog_enum.BlogError;
 import com.model.entity.User;
 import com.service.AuthService;
-import com.service.BlogImageService;
 import com.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -70,22 +69,22 @@ public class ProfileController {
             if (!UserService.validateMail(request.getEmail())
                     || userService.isUserExist(request.getEmail())
                     & !AuthService.getCurrentEmail().equals(request.getEmail())) {
-                result.put(BlogError.EMAIL.name().toLowerCase(), BlogError.EMAIL.getValue());
+                result.put(BlogError.EMAIL.name().toLowerCase(), BlogError.EMAIL.getDescription());
             }
         }
         if (request.getPhoto() != null) {
             if (request.getPhoto().getSize() > BlogImage.MAX_SIZE) {
-                result.put(BlogError.PHOTO.name().toLowerCase(), BlogError.PHOTO.getValue());
+                result.put(BlogError.PHOTO.name().toLowerCase(), BlogError.PHOTO.getDescription());
             }
         }
         if (request.getName() != null) {
             if (!UserService.validateName(request.getName())) {
-                result.put(BlogError.NAME.name().toLowerCase(), BlogError.NAME.getValue());
+                result.put(BlogError.NAME.name().toLowerCase(), BlogError.NAME.getDescription());
             }
         }
         if (request.getPassword() != null) {
             if (!UserService.validatePassword((byte) request.getPassword().length())) {
-                result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getValue());
+                result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getDescription());
             }
         }
         return result;

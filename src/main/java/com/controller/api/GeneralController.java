@@ -125,7 +125,7 @@ public class GeneralController {
         } else {
             DefaultResponse response = new DefaultResponse();
             Map<String, String> errors = new HashMap<>();
-            errors.put(BlogError.IMAGE.name(), BlogError.IMAGE.getValue());
+            errors.put(BlogError.IMAGE.name(), BlogError.IMAGE.getDescription());
 
             response.setErrors(errors);
             return ResponseEntity.badRequest().body(response);
@@ -135,7 +135,7 @@ public class GeneralController {
     private Map<String, String> checkText(CommentRequest request) {
         Map<String, String> result = new HashMap<>();
         if (request.getText().length() < 3) {
-            result.put(BlogError.Text.name().toLowerCase(), BlogError.Text.getValue());
+            result.put(BlogError.Text.name().toLowerCase(), BlogError.Text.getDescription());
         }
         return result;
     }

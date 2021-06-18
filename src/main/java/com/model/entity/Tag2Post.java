@@ -13,7 +13,6 @@ import javax.persistence.Table;
 
 @Getter
 @Entity
-@NoArgsConstructor
 @Table(name = "tag2post")
 public class Tag2Post {
     @Id

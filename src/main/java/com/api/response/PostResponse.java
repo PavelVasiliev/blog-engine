@@ -9,7 +9,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Component
 public class PostResponse {
     private int count;
     private List<PostDTO> posts;

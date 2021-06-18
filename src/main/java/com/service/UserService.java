@@ -20,15 +20,15 @@ import java.util.regex.Pattern;
 
 @Service
 public class UserService {
-    private static final Pattern PATTERN_NAME =
-            Pattern.compile("^[A-Z][a-z]{0,30}|[А-ЯЁ][а-яё]{0,30}$", Pattern.CASE_INSENSITIVE);
+    private static final Logger logger = LogManager.getLogger(AuthService.class);
+
+    private static final Pattern PATTERN_NAME = Pattern.compile("^[A-Z][a-z]{0,30}|[А-ЯЁ][а-яё]{0,30}$");
     private static final Pattern PATTERN_EMAIL =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     private static final String PATH_AVATARS = "/avatars/";
     private static final byte MIN_PASSWORD_LENGTH = 6;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private static final Logger logger = LogManager.getLogger(AuthService.class);
 
 
     @Autowired
@@ -51,16 +51,28 @@ public class UserService {
         return length >= MIN_PASSWORD_LENGTH;
     }
 
+    private static UserDTO.Builder getUserDTOBuilder(User user) {
+        return new UserDTO.Builder()
+                .withId(user.getId())
+                .withName(user.getName())
+                .withEmail(user.getEmail());
+    }
+
     public static UserDTO getUserDTO(User user) {
-        return UserDTO.makeSimpleUserDTO(user);
+        return getUserDTOBuilder(user).build();
     }
 
     public static UserDTO getModeratorDTO(User user, int moderatingCount) {
-        return UserDTO.makeModeratorDTO(user, moderatingCount);
+        return getUserDTOBuilder(user)
+                .withIsModerator(true)
+                .withModerationCount(moderatingCount)
+                .build();
     }
 
     public static UserDTO getUserDTOWithPhoto(User user) {
-        return UserDTO.makeUserDTOWithPhoto(user);
+        return getUserDTOBuilder(user)
+                .withPhoto(user.getPhoto())
+                .build();
     }
 
     public boolean isUserExist(String email) {
@@ -103,7 +115,6 @@ public class UserService {
             user.setPhoto("");
         }
         userRepository.save(user);
-
         String log = "User " + user.getEmail() + " updated profile.";
         logger.info(log);
     }

@@ -9,8 +9,6 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Getter
-@Setter
-@Component
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,7 +16,7 @@ public class ModifyUserRequest {
     private String name;
     private String email;
     private String password;
+    @Setter
     private MultipartFileImpl photo;
     private byte removePhoto;
-
 }

@@ -18,9 +18,8 @@ import java.io.InputStream;
 
 @Service
 public class BlogImageService extends StoredFile {
-
-    private static Cloudinary cloudinary;
     private static final Logger logger = LogManager.getLogger(BlogImageService.class);
+    private static Cloudinary cloudinary;
 
     private static void initCloudinary() {
         if (cloudinary == null) {
@@ -29,7 +28,6 @@ public class BlogImageService extends StoredFile {
     }
 
     public static String save(MultipartFile file, String path, boolean isAvatar) {
-        initCloudinary();
         String original = file.getOriginalFilename();
         if (original == null) {
             String log = "No file to upload: " + path;
@@ -50,6 +48,7 @@ public class BlogImageService extends StoredFile {
     }
 
     private static String upload(byte[] image, String path, String name) throws IOException {
+        initCloudinary();
         return (String) cloudinary.uploader().upload(image,
                 ObjectUtils.asMap("resource_type", "auto",
                         "folder", path,

@@ -56,7 +56,7 @@ public class AuthController {
 
     @GetMapping("/captcha")
     public CaptchaResponse captcha() {
-        return captchaService.getCaptchaResponse();
+        return captchaService.getResponse();
     }
 
     @PostMapping("/login")
@@ -69,8 +69,12 @@ public class AuthController {
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 authResponse.setResult(true);
                 authResponse.setUser(user.isModerator() ?
-                        UserService.getModeratorDTO(user, postService
-                                .countPostsToModerator(user.getId(), PostStatus.NEW)) : UserDTO.makeSimpleUserDTO(user));
+                        UserService.getModeratorDTO(user, postService.countPostsToModerator(user.getId(), PostStatus.NEW))
+                        : new UserDTO.Builder()
+                        .withId(user.getId())
+                        .withEmail(user.getEmail())
+                        .withName(user.getName())
+                        .build());
                 authService.authorize(user);
             }
         }
@@ -128,17 +132,17 @@ public class AuthController {
     private Map<String, String> checkData(RegistrationRequest request) {
         Map<String, String> result = new HashMap<>();
         if (!captchaService.findCodeBySecret(request.getCaptchaSecret()).equals(request.getCaptcha())) {
-            result.put(BlogError.CAPTCHA.name().toLowerCase(), BlogError.CAPTCHA.getValue());
+            result.put(BlogError.CAPTCHA.name().toLowerCase(), BlogError.CAPTCHA.getDescription());
         }
         if (userService.isUserExist(request.getEmail()) || !UserService.validateMail(request.getEmail())) {
-            result.put(BlogError.EMAIL.name().toLowerCase(), BlogError.EMAIL.getValue());
+            result.put(BlogError.EMAIL.name().toLowerCase(), BlogError.EMAIL.getDescription());
         }
         if (!UserService.validateName(request.getName())) {
-            result.put(BlogError.NAME.name().toLowerCase(), BlogError.NAME.getValue());
+            result.put(BlogError.NAME.name().toLowerCase(), BlogError.NAME.getDescription());
         }
         if (request.getPassword() != null) {
             if (!UserService.validatePassword((byte) request.getPassword().length())) {
-                result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getValue());
+                result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getDescription());
             }
         }
         return result;
@@ -147,13 +151,13 @@ public class AuthController {
     private Map<String, String> checkData(RestorePassRequest request) {
         Map<String, String> result = new HashMap<>();
         if (!userService.isCodeRight("%" + request.getCode())) {
-            result.put(BlogError.CODE.name().toLowerCase(), BlogError.CODE.getValue());
+            result.put(BlogError.CODE.name().toLowerCase(), BlogError.CODE.getDescription());
         }
         if (!UserService.validatePassword((byte) request.getPassword().length())) {
-            result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getValue());
+            result.put(BlogError.PASSWORD.name().toLowerCase(), BlogError.PASSWORD.getDescription());
         }
         if (!captchaService.findCodeBySecret(request.getCaptchaSecret()).equals(request.getCaptcha())) {
-            result.put(BlogError.CAPTCHA.name().toLowerCase(), BlogError.CAPTCHA.getValue());
+            result.put(BlogError.CAPTCHA.name().toLowerCase(), BlogError.CAPTCHA.getDescription());
         }
         return result;
     }

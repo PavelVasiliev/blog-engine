@@ -62,8 +62,7 @@ public class User {
 
     public void moderate(Post post, PostStatus status) {
         if(this.isModerator()){
-            post.setModerator(this);
-            post.setStatus(status);
+            post.moderate(this, status);
         }
     }
 

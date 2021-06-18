@@ -27,7 +27,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -38,8 +37,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostService {
-    public static final int MIN_TITLE = 3;
-    public static final int MIN_TEXT = 50;
+    private static final Logger logger = LogManager.getLogger(PostService.class);
+    public static final int MIN_TITLE_LENGTH = 3;
+    public static final int MIN_TEXT_LENGTH = 50;
     private final String OFFSET_DEFAULT = "0";
     private final String LIMIT_DEFAULT = "10";
 
@@ -50,7 +50,6 @@ public class PostService {
     private final JdbcTemplate jdbcTemplate;
     @Qualifier("postRepositoryImpl")
     private final PostRepository postRepository;
-    private static final Logger logger = LogManager.getLogger(PostService.class);
 
 
     @Autowired
@@ -90,6 +89,7 @@ public class PostService {
         } else {
             user = new User();
             userRepository.save(user);
+            logger.info("New user saved " + user.getEmail());
         }
 
         Post post = new Post(
@@ -129,6 +129,7 @@ public class PostService {
 
             post.setTags(tags);
             postRepository.save(post);
+            logger.info("Post " + id + " has been changed by author");
         }
     }
 
@@ -138,6 +139,7 @@ public class PostService {
                 return getResponseByModerationStatus(OFFSET_DEFAULT, LIMIT_DEFAULT, postMode);
             }
         }
+        logger.error("Unexpected moderation status " + postMode);
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND
         );
@@ -272,13 +274,9 @@ public class PostService {
     }
 
     public int countPostsToModerator(int moderatorId, PostStatus status) {
-        int result;
-        if (status.equals(PostStatus.NEW)) {
-            result = (int) postRepository.streamByStatus(status).count();
-        } else {
-            result = (int) postRepository.streamByModeratorIdAndStatus(moderatorId, status).count();
-        }
-        return result;
+        return status.equals(PostStatus.NEW) ?
+                (int) postRepository.streamByStatus(status).count()
+                : (int) postRepository.streamByModeratorIdAndStatus(moderatorId, status).count();
     }
 
     private List<PostDTO> givePostsToModerator(int moderatorId, PostStatus status, int offset, int limit) {
@@ -347,29 +345,28 @@ public class PostService {
         if (postOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new PostDTO());
         }
-
         Post post = postOptional.get();
+        int postId = post.getId();
+
         Optional<User> optional = userRepository.findByEmail(AuthService.getCurrentEmail());
-        UserDTO userDTO;
+        UserDTO userDTO = new UserDTO();
         if (optional.isPresent()) {
             User user = optional.get();
+            userDTO = UserService.getUserDTO(user);
             if (user.isModerator()) {
-                userDTO = UserDTO.makeModeratorDTO(user, countActiveCurrentPosts());
+                userDTO = UserService.getModeratorDTO(user, countPostsToModerator(user.getId(), PostStatus.NEW));
             } else {
-                userDTO = UserDTO.makeSimpleUserDTO(user);
-                if (user.getId() != post.getId()) {
-                    incrementPostViews(post.getId()); //increment only for registered users
+                if (user.getId() != postId) {
+                    incrementPostViews(postId); //increment only for registered users but not the author
                 }
             }
-        } else {
-            userDTO = new UserDTO();
         }
         result = makeDTOWithTagsAndComments(post, userDTO);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @Transactional
-    void incrementPostViews(int postId) {
+    protected void incrementPostViews(int postId) {
         String query = "UPDATE posts p SET p.view_count = p.view_count + 1 " +
                 "WHERE p.id = " + postId;
         jdbcTemplate.execute(query);
@@ -388,9 +385,18 @@ public class PostService {
         int[] likesDislikes = getLikesDislikesViews(post);
         int likeCount = likesDislikes[0];
         int dislikeCount = likesDislikes[1];
-
         int commentCount = commentRepository.findAllByPostId(post.getId()).size();
-        return PostDTO.makePostDTOWithAnnounce(post, user, likeCount, dislikeCount, commentCount);
+        return new PostDTO.Builder()
+                .withId(post.getId())
+                .withTimestamp(post.getTime())
+                .withUserDTO(user)
+                .withTitle(post.getTitle())
+                .withAnnounce(post.getText())
+                .withViewCount(post.getViewCount())
+                .withLikeCount(likeCount)
+                .withDislikeCount(dislikeCount)
+                .withCommentCount(commentCount)
+                .build();
     }
 
     private PostDTO makeDTOWithTagsAndComments(Post post, UserDTO currentUser) {
@@ -412,8 +418,19 @@ public class PostService {
         int likeCount = likesDislikesViews[0];
         int dislikeCount = likesDislikesViews[1];
         int viewCount = likesDislikesViews[2];
-        return PostDTO.makePostDTOWithTagsComments(
-                post, user, likeCount, dislikeCount, comments, tags, isActive, viewCount);
+        return new PostDTO.Builder()
+                .withId(post.getId())
+                .withTimestamp(post.getTime())
+                .withUserDTO(user)
+                .withTitle(post.getTitle())
+                .withText(post.getText())
+                .withLikeCount(likeCount)
+                .withDislikeCount(dislikeCount)
+                .withViewCount(viewCount)
+                .withComments(comments)
+                .withTags(tags)
+                .withIsActive(isActive)
+                .build();
     }
 
     private int[] getLikesDislikesViews(Post post) {

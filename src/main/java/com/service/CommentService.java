@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
+    private static final Logger logger = LogManager.getLogger(CommentService.class);
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private static final Logger logger = LogManager.getLogger(CommentService.class);
 
     @Autowired
     public CommentService(CommentRepository commentRepository,
@@ -57,6 +57,7 @@ public class CommentService {
             if (commentRepository.existsById(parentId)) {
                 parent = commentRepository.getOne(parentId);
             } else {
+                logger.warn("No such parent comment with id " + parentId);
                 return ResponseEntity.badRequest().body(response);
             }
         }
@@ -76,6 +77,7 @@ public class CommentService {
                 return ResponseEntity.ok(response);
             }
         }
+        logger.warn("Post doesnt exist " + postId);
         return ResponseEntity.badRequest().body(response);
     }
 

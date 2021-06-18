@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 
-@Setter
 @Getter
 @NoArgsConstructor
 @Entity
@@ -60,6 +59,7 @@ public class Post implements Comparable<Post> {
     @Column(nullable = false)
     private int viewCount;
 
+    @Setter
     @ManyToMany(mappedBy = "posts", cascade = CascadeType.ALL)
     private Set<Tag> tags;
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
@@ -82,6 +82,11 @@ public class Post implements Comparable<Post> {
 
     public long getTime() {
         return publicationDate.getTime() / 1000;
+    }
+
+    public void moderate(User moderator, PostStatus status) {
+        this.moderator = moderator;
+        this.status = status;
     }
 
     public void update(User currentUser, byte isActive, String title, long timestamp, String text) {
@@ -126,6 +131,6 @@ public class Post implements Comparable<Post> {
 
     @Override
     public int compareTo(Post p) { //by score
-        return (this.getScore() < p.getScore()) ? 1 : ((this.getScore() == p.getScore()) ? 0 : -1);
+        return (this.getScore() > p.getScore()) ? 1 : ((this.getScore() == p.getScore()) ? 0 : -1);
     }
 }

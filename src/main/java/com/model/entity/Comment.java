@@ -1,6 +1,5 @@
 package com.model.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +15,6 @@ import java.util.Date;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "post_comments")
 public class Comment {
@@ -46,7 +44,7 @@ public class Comment {
         return time.getTime() / 1000;
     }
 
-    public static Comment makeComment(User user, Post post, Comment parent, String text){
+    public static Comment makeComment(User user, Post post, Comment parent, String text) {
         Comment comment = new Comment();
         comment.user = user;
         comment.post = post;

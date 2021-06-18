@@ -9,11 +9,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentResponse {
     private Integer id;

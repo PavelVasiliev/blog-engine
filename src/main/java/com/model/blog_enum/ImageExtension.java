@@ -1,16 +1,15 @@
 package com.model.blog_enum;
 
+import lombok.Getter;
+
+@Getter
 public enum ImageExtension {
     JPG("jpg"),
     PNG("png");
 
-    private final String extension;
+    final String extension;
 
     ImageExtension(String extension) {
         this.extension = extension;
-    }
-
-    public String getExtension() {
-        return extension;
     }
 }

@@ -13,8 +13,8 @@ import java.util.List;
 
 @Service
 public class SettingsService {
-    private final SettingsRepository settingsRepository;
     private static final Logger logger = LogManager.getLogger(AuthService.class);
+    private final SettingsRepository settingsRepository;
 
     public SettingsService(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;

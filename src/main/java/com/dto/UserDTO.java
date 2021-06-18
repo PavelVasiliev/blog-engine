@@ -1,12 +1,10 @@
 package com.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.model.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
     private int id;
@@ -17,52 +15,45 @@ public class UserDTO {
     private int moderationCount;
     private final boolean settings = true;
 
-    public static UserDTO makeUserDTOWithPhoto(User user) {
-        return new UserDTO(
-                user.getId(),
-                user.getName(),
-                user.getPhoto(),
-                user.getEmail());
-    }
+    public static class Builder {
+        private UserDTO newUserDTO;
 
-    public static UserDTO makeModeratorDTO(User user, int moderationCount) {
-        if (!user.isModerator()) {
-            return makeSimpleUserDTO(user);
+        public Builder() {
+            newUserDTO = new UserDTO();
         }
-        return new UserDTO(
-                user.getId(),
-                user.getName(),
-                user.getPhoto(),
-                user.getEmail(),
-                user.isModerator(), moderationCount);
-    }
 
-    public static UserDTO makeSimpleUserDTO(User user) {
-        return new UserDTO(
-                user.getId(),
-                user.getName(),
-                user.getPhoto());
-    }
+        public Builder withId(int id) {
+            newUserDTO.id = id;
+            return this;
+        }
 
-    private UserDTO(int id, String name, String photo) {
-        this.id = id;
-        this.name = name;
-        this.photo = photo;
-    }
+        public Builder withName(String name) {
+            newUserDTO.name = name;
+            return this;
+        }
 
-    private UserDTO(int id, String name, String photo, String email) {
-        this.id = id;
-        this.name = name;
-        this.photo = photo;
-        this.email = email;
-    }
+        public Builder withPhoto(String photo) {
+            newUserDTO.photo = photo;
+            return this;
+        }
 
-    private UserDTO(int id, String name, String photo, String email, boolean moderation, int moderationCount) {
-        this.id = id;
-        this.name = name;
-        this.photo = photo;
-        this.email = email;
-        this.moderation = moderation;
-        this.moderationCount = moderationCount;
+        public Builder withEmail(String email) {
+            newUserDTO.email = email;
+            return this;
+        }
+
+        public Builder withIsModerator(boolean moderation) {
+            newUserDTO.moderation = moderation;
+            return this;
+        }
+
+        public Builder withModerationCount(int moderationCount) {
+            newUserDTO.moderationCount = moderationCount;
+            return this;
+        }
+
+        public UserDTO build() {
+            return newUserDTO;
+        }
     }
 }
