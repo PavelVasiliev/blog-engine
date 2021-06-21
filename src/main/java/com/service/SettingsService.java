@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 public class SettingsService {
-    private static final Logger logger = LogManager.getLogger(AuthService.class);
+    private static final Logger logger = LogManager.getLogger(SettingsService.class);
     private final SettingsRepository settingsRepository;
 
     public SettingsService(SettingsRepository settingsRepository) {
@@ -47,10 +47,9 @@ public class SettingsService {
                 GlobalSettings s = savedSettings.get(i);
                 s.changeValue(requestValues[i]);
                 settingsRepository.save(s);
-
-                String log = "Blog settings have been changed. \n" + request;
-                logger.warn(log);
             }
+            String log = "Blog settings have been changed. \n" + request;
+            logger.warn(log);
         }
     }
 }

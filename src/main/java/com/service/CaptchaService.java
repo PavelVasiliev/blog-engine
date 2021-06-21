@@ -51,7 +51,7 @@ public class CaptchaService {
     private void saveCaptcha(String code, String secretCode) {
         Date date = new Date();
         captchaRepository.save(new Captcha(date, code, secretCode));
-        logger.info("New captcha generated " + date.getTime());
+        logger.info("New captcha generated, code - " + code);
     }
 
     private String generateSecretCode(String code) {
