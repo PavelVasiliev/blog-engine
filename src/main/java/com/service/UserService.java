@@ -2,6 +2,7 @@ package com.service;
 
 import com.api.request.ModifyUserRequest;
 import com.api.response.DefaultResponse;
+import com.dto.DTOBuilder;
 import com.dto.UserDTO;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.Post;
@@ -51,28 +52,28 @@ public class UserService {
         return length >= MIN_PASSWORD_LENGTH;
     }
 
-    private static UserDTO.Builder getUserDTOBuilder(User user) {
-        return new UserDTO.Builder()
-                .withId(user.getId())
-                .withName(user.getName())
-                .withEmail(user.getEmail());
+    private static DTOBuilder getUserDTOBuilder(User user) {
+        return new DTOBuilder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail());
     }
 
     public static UserDTO getUserDTO(User user) {
-        return getUserDTOBuilder(user).build();
+        return getUserDTOBuilder(user).buildUser();
     }
 
     public static UserDTO getModeratorDTO(User user, int moderatingCount) {
         return getUserDTOBuilder(user)
-                .withIsModerator(true)
-                .withModerationCount(moderatingCount)
-                .build();
+                .isModerator(true)
+                .moderationCount(moderatingCount)
+                .buildUser();
     }
 
     public static UserDTO getUserDTOWithPhoto(User user) {
         return getUserDTOBuilder(user)
-                .withPhoto(user.getPhoto())
-                .build();
+                .photo(user.getPhoto())
+                .buildUser();
     }
 
     public boolean isUserExist(String email) {

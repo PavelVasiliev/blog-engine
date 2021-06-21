@@ -3,6 +3,7 @@ package com.service;
 import com.api.request.PostRequest;
 import com.api.response.PostResponse;
 import com.dto.CommentDTO;
+import com.dto.DTOBuilder;
 import com.dto.PostDTO;
 import com.dto.UserDTO;
 import com.model.blog_enum.PostStatus;
@@ -126,10 +127,12 @@ public class PostService {
 
             List<String> tagsNames = request.getTags();
             Set<Tag> tags = tag2PostService.updateTagsToPost(tagsNames, post);
-
             post.setTags(tags);
             postRepository.save(post);
-            logger.info("Post " + id + " has been changed by author");
+
+            String log = "Post " + id + " has been changed by ";
+            log += currentUser.isModerator() ? "moderator." : "author";
+            logger.info(log);
         }
     }
 
@@ -386,17 +389,17 @@ public class PostService {
         int likeCount = likesDislikes[0];
         int dislikeCount = likesDislikes[1];
         int commentCount = commentRepository.findAllByPostId(post.getId()).size();
-        return new PostDTO.Builder()
-                .withId(post.getId())
-                .withTimestamp(post.getTime())
-                .withUserDTO(user)
-                .withTitle(post.getTitle())
-                .withAnnounce(post.getText())
-                .withViewCount(post.getViewCount())
-                .withLikeCount(likeCount)
-                .withDislikeCount(dislikeCount)
-                .withCommentCount(commentCount)
-                .build();
+        return new DTOBuilder()
+                .id(post.getId())
+                .timestamp(post.getTime())
+                .userDTO(user)
+                .title(post.getTitle())
+                .announce(post.getText())
+                .viewCount(post.getViewCount())
+                .likeCount(likeCount)
+                .dislikeCount(dislikeCount)
+                .commentCount(commentCount)
+                .buildPost();
     }
 
     private PostDTO makeDTOWithTagsAndComments(Post post, UserDTO currentUser) {
@@ -418,19 +421,19 @@ public class PostService {
         int likeCount = likesDislikesViews[0];
         int dislikeCount = likesDislikesViews[1];
         int viewCount = likesDislikesViews[2];
-        return new PostDTO.Builder()
-                .withId(post.getId())
-                .withTimestamp(post.getTime())
-                .withUserDTO(user)
-                .withTitle(post.getTitle())
-                .withText(post.getText())
-                .withLikeCount(likeCount)
-                .withDislikeCount(dislikeCount)
-                .withViewCount(viewCount)
-                .withComments(comments)
-                .withTags(tags)
-                .withIsActive(isActive)
-                .build();
+        return new DTOBuilder()
+                .id(post.getId())
+                .timestamp(post.getTime())
+                .userDTO(user)
+                .title(post.getTitle())
+                .text(post.getText())
+                .likeCount(likeCount)
+                .dislikeCount(dislikeCount)
+                .viewCount(viewCount)
+                .comments(comments)
+                .tags(tags)
+                .isActive(isActive)
+                .buildPost();
     }
 
     private int[] getLikesDislikesViews(Post post) {

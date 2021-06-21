@@ -6,7 +6,7 @@ import com.api.request.RestorePassRequest;
 import com.api.response.AuthResponse;
 import com.api.response.CaptchaResponse;
 import com.api.response.DefaultResponse;
-import com.dto.UserDTO;
+import com.dto.DTOBuilder;
 import com.model.blog_enum.BlogError;
 import com.model.blog_enum.PostStatus;
 import com.model.entity.User;
@@ -70,11 +70,15 @@ public class AuthController {
                 authResponse.setResult(true);
                 authResponse.setUser(user.isModerator() ?
                         UserService.getModeratorDTO(user, postService.countPostsToModerator(user.getId(), PostStatus.NEW))
-                        : new UserDTO.Builder()
+                        : new DTOBuilder()
+                            .id(user.getId())
+                            .name(user.getName())
+                            .email(user.getEmail())
+                            .buildUser());/*new UserDTO.DTOBuilder()
                         .withId(user.getId())
                         .withEmail(user.getEmail())
                         .withName(user.getName())
-                        .build());
+                        .build());*/
                 authService.authorize(user);
             }
         }
