@@ -131,7 +131,7 @@ public class PostService {
             postRepository.save(post);
 
             String log = "Post " + id + " has been changed by ";
-            log += currentUser.isModerator() ? "moderator." : "author";
+            log += currentUser.isModerator() ? "moderator." : "author.";
             logger.info(log);
         }
     }
