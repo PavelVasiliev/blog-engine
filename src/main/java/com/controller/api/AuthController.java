@@ -74,11 +74,7 @@ public class AuthController {
                             .id(user.getId())
                             .name(user.getName())
                             .email(user.getEmail())
-                            .buildUser());/*new UserDTO.DTOBuilder()
-                        .withId(user.getId())
-                        .withEmail(user.getEmail())
-                        .withName(user.getName())
-                        .build());*/
+                            .buildUser());
                 authService.authorize(user);
             }
         }

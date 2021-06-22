@@ -1,6 +1,5 @@
 package com.model.image;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.cage.Cage;
 import com.github.cage.image.Painter;

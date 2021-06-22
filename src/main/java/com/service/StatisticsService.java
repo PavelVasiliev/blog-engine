@@ -28,7 +28,7 @@ public class StatisticsService {
 
     public StatisticsResponse getMyStats() {
         Optional<User> optional = userService.getUserByMail(AuthService.getCurrentEmail());
-        if(optional.isEmpty()){
+        if (optional.isEmpty()) {
             return new StatisticsResponse();
         }
         User user = optional.get();

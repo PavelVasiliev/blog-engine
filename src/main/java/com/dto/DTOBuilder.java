@@ -132,9 +132,9 @@ public class DTOBuilder {
     public PostDTO buildPost() {
         return new PostDTO
                 (id, timestamp, user, title, text,
-                likeCount, dislikeCount, viewCount,
-                commentCount, announce, comments,
-                tags, active);
+                 likeCount, dislikeCount, viewCount,
+                 commentCount, announce, comments,
+                 tags, active);
     }
 }
 

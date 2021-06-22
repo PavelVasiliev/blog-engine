@@ -1,8 +1,8 @@
 package com.service;
 
 import com.api.response.CaptchaResponse;
-import com.model.image.CaptchaImage;
 import com.model.entity.Captcha;
+import com.model.image.CaptchaImage;
 import com.repo.CaptchaRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

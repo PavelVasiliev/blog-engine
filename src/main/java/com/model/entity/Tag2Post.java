@@ -1,7 +1,6 @@
 package com.model.entity;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
